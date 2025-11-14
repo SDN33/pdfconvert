@@ -1,6 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { marked } from 'marked';
 import jsPDF from 'jspdf';
+import { canConvert, logConversion, getClientIP } from './lib/supabase';
+import { redirectToCheckout } from './lib/stripe';
+import { shouldShowCookieBanner, acceptCookies } from './lib/cookies';
+import CookieBanner from './components/CookieBanner';
+import UpgradeModal from './components/UpgradeModal';
 
 interface PageSettings {
   fontSize: number;
@@ -56,6 +61,11 @@ function App() {
   const [markdown, setMarkdown] = useState('');
   const [isConverting, setIsConverting] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showCookieBanner, setShowCookieBanner] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [conversionsToday, setConversionsToday] = useState(0);
+  const [userIP, setUserIP] = useState<string>('');
+  
   const [settings, setSettings] = useState<PageSettings>({
     fontSize: 11,
     lineHeight: 1.6,
@@ -77,8 +87,41 @@ function App() {
     pageNumberPosition: 'center',
   });
 
+  // Vérifier les cookies au chargement
+  useEffect(() => {
+    setShowCookieBanner(shouldShowCookieBanner());
+    
+    // Récupérer l'IP de l'utilisateur
+    getClientIP().then(ip => {
+      setUserIP(ip);
+    });
+  }, []);
+
+  const handleAcceptCookies = () => {
+    acceptCookies();
+    setShowCookieBanner(false);
+  };
+
+  const handleUpgrade = async () => {
+    try {
+      await redirectToCheckout();
+    } catch (error) {
+      console.error('Error upgrading:', error);
+      alert('Erreur lors de la redirection vers le paiement. Veuillez réessayer.');
+    }
+  };
+
   const handleConvert = async () => {
     if (!markdown.trim()) return;
+
+    // Vérifier si l'utilisateur peut convertir
+    const { allowed, conversionsToday: count } = await canConvert(userIP);
+    
+    if (!allowed) {
+      setConversionsToday(count);
+      setShowUpgradeModal(true);
+      return;
+    }
 
     setIsConverting(true);
 
@@ -621,6 +664,14 @@ function App() {
       }
 
       pdf.save('document.pdf');
+      
+      // Enregistrer la conversion
+      await logConversion(userIP, navigator.userAgent);
+      
+      // Mettre à jour le compteur
+      const { conversionsToday: newCount } = await canConvert(userIP);
+      setConversionsToday(newCount);
+      
     } catch (error) {
       console.error('Erreur de conversion:', error);
     } finally {
@@ -1241,7 +1292,30 @@ function App() {
             <span className="inline-block mx-2">Générateur PDF</span>
           </p>
         </footer>
+        
+        <footer className="mt-6 text-center text-xs text-slate-500">
+          <a href="/mentions-legales" className="hover:text-cyan-600 hover:underline mx-2">
+            Mentions légales
+          </a>
+          •
+          <a href="mailto:contact@stillinov.com" className="hover:text-cyan-600 hover:underline mx-2">
+            Contact
+          </a>
+          •
+          <span className="mx-2">Géré par Stéphane Dei-Negri</span>
+        </footer>
       </div>
+      
+      {/* Cookie Banner */}
+      {showCookieBanner && <CookieBanner onAccept={handleAcceptCookies} />}
+      
+      {/* Upgrade Modal */}
+      <UpgradeModal 
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        conversionsToday={conversionsToday}
+        onUpgrade={handleUpgrade}
+      />
     </div>
   );
 }

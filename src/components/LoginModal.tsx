@@ -19,21 +19,21 @@ export default function LoginModal({ onClose, onLoginSuccess }: LoginModalProps)
     setMessage('');
 
     try {
-      const authUser = await loginPremium(email.trim().toLowerCase(), password);
+      const result = await loginPremium(email.trim().toLowerCase(), password);
 
-      if (!authUser) {
-        setMessage('❌ Email ou mot de passe incorrect.');
+      if (!result.success || !result.user) {
+        setMessage(result.error || '❌ Email ou mot de passe incorrect.');
         setIsSuccess(false);
-      } else if (!authUser.isPremium) {
+      } else if (!result.user.isPremium) {
         setMessage('❌ Votre compte n\'est pas premium.');
         setIsSuccess(false);
       } else {
         setMessage('✅ Connexion réussie ! Accès illimité activé.');
         setIsSuccess(true);
         // Stocker le session token dans localStorage
-        localStorage.setItem('session_token', authUser.sessionToken);
+        localStorage.setItem('session_token', result.user.sessionToken);
         setTimeout(() => {
-          onLoginSuccess(authUser.sessionToken, authUser.email);
+          onLoginSuccess(result.user!.sessionToken, result.user!.email);
           onClose();
         }, 1500);
       }

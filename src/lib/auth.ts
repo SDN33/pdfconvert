@@ -16,7 +16,7 @@ function generateSessionToken(): string {
 }
 
 // Créer un compte premium avec mot de passe
-export async function registerPremium(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+export async function registerPremium(email: string, password: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
   try {
     // Vérifier si l'email existe déjà
     const { data: existing } = await supabase
@@ -33,21 +33,49 @@ export async function registerPremium(email: string, password: string): Promise<
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
     // Créer l'utilisateur
-    const { error } = await supabase
+    const { data: newUser, error } = await supabase
       .from('premium_users')
       .insert([{
         email,
         password_hash: passwordHash,
         is_lifetime: false, // Sera mis à true après paiement Stripe
         subscription_status: 'pending'
-      }]);
+      }])
+      .select()
+      .single();
 
-    if (error) {
+    if (error || !newUser) {
       console.error('Error creating user:', error);
       return { success: false, error: 'Erreur lors de la création du compte' };
     }
 
-    return { success: true };
+    // Créer une session automatiquement
+    const sessionToken = generateSessionToken();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
+
+    const { error: sessionError } = await supabase
+      .from('user_sessions')
+      .insert([{
+        user_id: newUser.id,
+        session_token: sessionToken,
+        expires_at: expiresAt.toISOString()
+      }]);
+
+    if (sessionError) {
+      console.error('Error creating session:', sessionError);
+      return { success: false, error: 'Erreur lors de la création de la session' };
+    }
+
+    return { 
+      success: true,
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        isPremium: newUser.is_lifetime === true,
+        sessionToken
+      }
+    };
   } catch (error) {
     console.error('Register error:', error);
     return { success: false, error: 'Erreur serveur' };

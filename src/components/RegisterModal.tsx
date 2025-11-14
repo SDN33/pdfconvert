@@ -46,21 +46,21 @@ export default function RegisterModal({ isOpen, onClose, onRegisterSuccess }: Re
     setLoading(true);
 
     try {
-      const authUser = await registerPremium(email.trim().toLowerCase(), password);
+      const result = await registerPremium(email.trim().toLowerCase(), password);
       
-      if (!authUser) {
-        setError('Erreur lors de la création du compte');
+      if (!result.success || !result.user) {
+        setError(result.error || 'Erreur lors de la création du compte');
         return;
       }
 
       setSuccess(true);
       
       // Stocker le session token
-      localStorage.setItem('session_token', authUser.sessionToken);
+      localStorage.setItem('session_token', result.user.sessionToken);
       
       // Appeler le callback de succès
       setTimeout(() => {
-        onRegisterSuccess(authUser.sessionToken, authUser.email);
+        onRegisterSuccess(result.user!.sessionToken, result.user!.email);
         onClose();
       }, 1500);
     } catch (err) {

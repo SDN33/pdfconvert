@@ -5,41 +5,80 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Fonction pour vérifier si l'utilisateur peut convertir (limite 2 par jour)
-export async function canConvert(ipAddress: string): Promise<{ allowed: boolean; conversionsToday: number; message?: string }> {
+// Interface pour le résultat de vérification de conversion
+export interface ConversionCheckResult {
+  allowed: boolean;
+  conversionsUsed: number;
+  conversionsLimit: number;
+  isPremium: boolean;
+  message?: string;
+}
+
+// Fonction centralisée pour vérifier si une conversion est autorisée
+export async function checkConversionAllowed(
+  ipAddress: string, 
+  email?: string
+): Promise<ConversionCheckResult> {
   try {
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    
+    // Utiliser la fonction SQL pour vérifier les conversions
     const { data, error } = await supabase
-      .from('conversion_logs')
-      .select('*')
-      .eq('ip_address', ipAddress)
-      .gte('converted_at', twentyFourHoursAgo);
+      .rpc('get_remaining_conversions', {
+        user_ip: ipAddress,
+        user_email: email || null
+      });
 
     if (error) {
       console.error('Error checking conversions:', error);
-      return { allowed: true, conversionsToday: 0 }; // En cas d'erreur, autoriser la conversion
-    }
-
-    const conversionsToday = data?.length || 0;
-
-    if (conversionsToday >= 2) {
+      // En cas d'erreur, autoriser la conversion par défaut
       return {
-        allowed: false,
-        conversionsToday,
-        message: 'Vous avez atteint la limite de 2 conversions gratuites par jour. Passez à la version illimitée pour seulement 2,99€ à vie !'
+        allowed: true,
+        conversionsUsed: 0,
+        conversionsLimit: 2,
+        isPremium: false
       };
     }
 
-    return { allowed: true, conversionsToday };
+    const result = data[0];
+
+    if (!result.allowed) {
+      return {
+        allowed: false,
+        conversionsUsed: result.conversions_used,
+        conversionsLimit: result.conversions_limit,
+        isPremium: false,
+        message: 'Limite de conversions atteinte. Passez à la version premium pour un accès illimité !'
+      };
+    }
+
+    return {
+      allowed: true,
+      conversionsUsed: result.conversions_used,
+      conversionsLimit: result.conversions_limit,
+      isPremium: result.is_premium
+    };
   } catch (error) {
-    console.error('Error in canConvert:', error);
-    return { allowed: true, conversionsToday: 0 };
+    console.error('Error in checkConversionAllowed:', error);
+    return {
+      allowed: true,
+      conversionsUsed: 0,
+      conversionsLimit: 2,
+      isPremium: false
+    };
   }
 }
 
+// Ancienne fonction pour compatibilité (déprécié)
+export async function canConvert(ipAddress: string): Promise<{ allowed: boolean; conversionsToday: number; message?: string }> {
+  const result = await checkConversionAllowed(ipAddress);
+  return {
+    allowed: result.allowed,
+    conversionsToday: result.conversionsUsed,
+    message: result.message
+  };
+}
+
 // Fonction pour enregistrer une conversion
-export async function logConversion(ipAddress: string, userAgent: string): Promise<void> {
+export async function logConversion(ipAddress: string, userAgent: string, email?: string): Promise<void> {
   try {
     const { error } = await supabase
       .from('conversion_logs')
@@ -54,12 +93,43 @@ export async function logConversion(ipAddress: string, userAgent: string): Promi
     if (error) {
       console.error('Error logging conversion:', error);
     }
+
+    // Si un email est fourni, mettre à jour les stats de l'utilisateur gratuit
+    if (email) {
+      const { data: freeUser } = await supabase
+        .from('free_users')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (freeUser) {
+        // Mettre à jour le compteur
+        await supabase
+          .from('free_users')
+          .update({
+            conversions_count: (freeUser.conversions_count || 0) + 1,
+            last_conversion_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('email', email);
+      } else {
+        // Créer un nouvel utilisateur gratuit
+        await supabase
+          .from('free_users')
+          .insert([{
+            email,
+            ip_address: ipAddress,
+            conversions_count: 1,
+            last_conversion_at: new Date().toISOString()
+          }]);
+      }
+    }
   } catch (error) {
     console.error('Error in logConversion:', error);
   }
 }
 
-// Fonction pour vérifier si un utilisateur est premium
+// Fonction pour vérifier si un utilisateur est premium (par email)
 export async function isPremiumUser(email: string): Promise<boolean> {
   try {
     const { data, error } = await supabase

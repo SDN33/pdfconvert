@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { marked } from 'marked';
 import jsPDF from 'jspdf';
-import { canConvert, logConversion, getClientIP, isPremiumUser } from './lib/supabase';
+import { checkConversionAllowed, logConversion, getClientIP } from './lib/supabase';
+import { verifySession, logout as authLogout } from './lib/auth';
 import { redirectToCheckout } from './lib/stripe';
 import { shouldShowCookieBanner, acceptCookies } from './lib/cookies';
 import CookieBanner from './components/CookieBanner';
 import UpgradeModal from './components/UpgradeModal';
 import LoginModal from './components/LoginModal';
+import RegisterModal from './components/RegisterModal';
 import PremiumBanner from './components/PremiumBanner';
 
 interface PageSettings {
@@ -66,6 +68,7 @@ function App() {
   const [showCookieBanner, setShowCookieBanner] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [conversionsToday, setConversionsToday] = useState(0);
   const [userIP, setUserIP] = useState<string>('');
   const [isPremium, setIsPremium] = useState(false);
@@ -101,25 +104,30 @@ function App() {
       const ip = await getClientIP();
       setUserIP(ip);
       
-      // Vérifier le nombre de conversions pour cet IP
-      const { conversionsToday: count } = await canConvert(ip);
-      setConversionsToday(count);
+      // Vérifier la session token
+      const sessionToken = localStorage.getItem('session_token');
+      let currentEmail = '';
+      
+      if (sessionToken) {
+        const sessionCheck = await verifySession(sessionToken);
+        if (sessionCheck.valid && sessionCheck.user) {
+          setIsPremium(sessionCheck.user.isPremium);
+          setPremiumEmail(sessionCheck.user.email);
+          currentEmail = sessionCheck.user.email;
+        } else {
+          // Session invalide ou expirée
+          localStorage.removeItem('session_token');
+          setIsPremium(false);
+          setPremiumEmail('');
+        }
+      }
+      
+      // Vérifier le nombre de conversions avec la nouvelle fonction
+      const result = await checkConversionAllowed(ip, currentEmail || undefined);
+      setConversionsToday(result.conversionsUsed);
     };
     
     fetchIPAndCheck();
-
-    // Vérifier si l'utilisateur est déjà connecté (premium)
-    const savedEmail = localStorage.getItem('premium_email');
-    if (savedEmail) {
-      isPremiumUser(savedEmail).then(premium => {
-        if (premium) {
-          setIsPremium(true);
-          setPremiumEmail(savedEmail);
-        } else {
-          localStorage.removeItem('premium_email');
-        }
-      });
-    }
 
     // Écouter l'événement personnalisé pour ouvrir le modal upgrade
     const handleShowUpgrade = () => setShowUpgradeModal(true);
@@ -144,14 +152,24 @@ function App() {
     }
   };
 
-  const handleLoginSuccess = (email: string) => {
+  const handleLoginSuccess = (_sessionToken: string, email: string) => {
     setIsPremium(true);
     setPremiumEmail(email);
     setConversionsToday(0);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('premium_email');
+  const handleRegisterSuccess = (_sessionToken: string, email: string) => {
+    setIsPremium(true);
+    setPremiumEmail(email);
+    setConversionsToday(0);
+  };
+
+  const handleLogout = async () => {
+    const sessionToken = localStorage.getItem('session_token');
+    if (sessionToken) {
+      await authLogout(sessionToken);
+    }
+    localStorage.removeItem('session_token');
     setIsPremium(false);
     setPremiumEmail('');
   };
@@ -166,11 +184,12 @@ function App() {
       return;
     }
 
-    // Vérifier si l'utilisateur peut convertir
-    const { allowed, conversionsToday: count } = await canConvert(userIP);
-    setConversionsToday(count);
+    // Vérifier si l'utilisateur peut convertir avec la nouvelle fonction centralisée
+    const result = await checkConversionAllowed(userIP, premiumEmail || undefined);
+    setConversionsToday(result.conversionsUsed);
     
-    if (!allowed) {
+    if (!result.allowed) {
+      alert(result.message || 'Limite de conversions atteinte.');
       setShowUpgradeModal(true);
       return;
     }
@@ -723,11 +742,11 @@ function App() {
       
       // Enregistrer la conversion SEULEMENT si non-premium
       if (!isPremium) {
-        await logConversion(userIP, navigator.userAgent);
+        await logConversion(userIP, navigator.userAgent, premiumEmail || undefined);
         
-        // Mettre à jour le compteur
-        const { conversionsToday: newCount } = await canConvert(userIP);
-        setConversionsToday(newCount);
+        // Mettre à jour le compteur avec la nouvelle fonction
+        const result = await checkConversionAllowed(userIP, premiumEmail || undefined);
+        setConversionsToday(result.conversionsUsed);
       }
       
     } catch (error) {
@@ -1131,6 +1150,19 @@ function App() {
             onLogout={handleLogout}
             userIP={userIP}
           />
+          
+          {/* Bouton d'inscription si non connecté */}
+          {!isPremium && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setShowRegisterModal(true)}
+                data-register-trigger
+                className="text-sm text-cyan-600 hover:text-cyan-700 font-medium underline"
+              >
+                Créer un compte gratuit pour suivre vos conversions
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Section Caractéristiques & Avantages */}
@@ -1384,6 +1416,15 @@ function App() {
         <LoginModal 
           onClose={() => setShowLoginModal(false)}
           onLoginSuccess={handleLoginSuccess}
+        />
+      )}
+      
+      {/* Register Modal */}
+      {showRegisterModal && (
+        <RegisterModal 
+          isOpen={showRegisterModal}
+          onClose={() => setShowRegisterModal(false)}
+          onRegisterSuccess={handleRegisterSuccess}
         />
       )}
       

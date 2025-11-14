@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { loginPremium } from '../lib/auth';
 
 interface LoginModalProps {
   onClose: () => void;
-  onLoginSuccess: (email: string) => void;
+  onLoginSuccess: (sessionToken: string, email: string) => void;
 }
 
 export default function LoginModal({ onClose, onLoginSuccess }: LoginModalProps) {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -18,28 +19,23 @@ export default function LoginModal({ onClose, onLoginSuccess }: LoginModalProps)
     setMessage('');
 
     try {
-      // Vérifier si l'email existe dans premium_users
-      const { data, error } = await supabase
-        .from('premium_users')
-        .select('email, is_lifetime')
-        .eq('email', email)
-        .single();
+      const authUser = await loginPremium(email.trim().toLowerCase(), password);
 
-      if (error || !data) {
-        setMessage('❌ Aucun compte premium trouvé avec cet email.');
+      if (!authUser) {
+        setMessage('❌ Email ou mot de passe incorrect.');
         setIsSuccess(false);
-      } else if (data.is_lifetime) {
+      } else if (!authUser.isPremium) {
+        setMessage('❌ Votre compte n\'est pas premium.');
+        setIsSuccess(false);
+      } else {
         setMessage('✅ Connexion réussie ! Accès illimité activé.');
         setIsSuccess(true);
-        // Stocker l'email dans localStorage
-        localStorage.setItem('premium_email', email);
+        // Stocker le session token dans localStorage
+        localStorage.setItem('session_token', authUser.sessionToken);
         setTimeout(() => {
-          onLoginSuccess(email);
+          onLoginSuccess(authUser.sessionToken, authUser.email);
           onClose();
         }, 1500);
-      } else {
-        setMessage('❌ Votre abonnement n\'est pas actif.');
-        setIsSuccess(false);
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -71,7 +67,7 @@ export default function LoginModal({ onClose, onLoginSuccess }: LoginModalProps)
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Connexion Premium</h2>
           <p className="text-gray-600 text-sm">
-            Connectez-vous avec l'email utilisé lors de votre achat
+            Connectez-vous pour accéder à vos conversions illimitées
           </p>
         </div>
 
@@ -88,6 +84,23 @@ export default function LoginModal({ onClose, onLoginSuccess }: LoginModalProps)
               placeholder="votre@email.com"
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              Mot de passe
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Votre mot de passe"
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+              disabled={loading}
             />
           </div>
 
@@ -106,23 +119,37 @@ export default function LoginModal({ onClose, onLoginSuccess }: LoginModalProps)
             disabled={loading}
             className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Vérification...' : 'Se connecter'}
+            {loading ? 'Connexion...' : 'Se connecter'}
           </button>
         </form>
 
         <div className="mt-6 pt-6 border-t border-gray-200">
           <p className="text-center text-sm text-gray-600 mb-3">
-            Pas encore premium ?
+            Pas encore de compte ?
           </p>
           <button
             onClick={() => {
               onClose();
-              // Trigger upgrade modal
+              // Trigger register modal
+              setTimeout(() => {
+                const registerBtn = document.querySelector('[data-register-trigger]') as HTMLButtonElement;
+                if (registerBtn) registerBtn.click();
+              }, 100);
+            }}
+            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all mb-2"
+          >
+            🚀 Créer un compte - 2,99€ à vie
+          </button>
+          
+          <button
+            onClick={() => {
+              // Trigger upgrade modal for direct purchase
+              onClose();
               window.dispatchEvent(new CustomEvent('showUpgradeModal'));
             }}
-            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all"
+            className="w-full text-cyan-600 hover:text-cyan-700 text-sm font-medium"
           >
-            🚀 Passer à la version illimitée - 2,99€
+            Acheter sans créer de compte
           </button>
         </div>
       </div>

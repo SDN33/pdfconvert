@@ -15,7 +15,7 @@ CREATE INDEX idx_conversion_logs_date ON conversion_logs(converted_at);
 CREATE TABLE premium_users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL, -- Hash bcrypt du mot de passe
+  password_hash TEXT, -- Nullable: sera défini après paiement via /setup-password
   stripe_customer_id TEXT UNIQUE,
   stripe_subscription_id TEXT,
   subscription_status TEXT DEFAULT 'active',

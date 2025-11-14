@@ -82,9 +82,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(500).json({ error: 'Database update error' });
         }
       } else {
-        console.log('Creating new premium user...');
+        console.log('Creating new premium user WITHOUT password...');
         
-        // Créer un nouvel utilisateur premium
+        // Créer un nouvel utilisateur premium SANS mot de passe
+        // L'utilisateur devra le créer après via /setup-password
         const { error: insertError } = await supabase
           .from('premium_users')
           .insert([
@@ -93,6 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               stripe_customer_id: session.customer as string,
               subscription_status: 'active',
               is_lifetime: true,
+              password_hash: null, // Pas de mot de passe initialement
               purchased_at: new Date().toISOString(),
             },
           ]);
@@ -105,8 +107,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       console.log('Premium user processed successfully:', session.customer_email);
 
-      // TODO: Envoyer un email de confirmation via SendGrid/Resend
-      // await sendWelcomeEmail(session.customer_email);
+      // TODO: Envoyer un email de bienvenue avec lien vers /setup-password
+      // await sendWelcomeEmail(session.customer_email, session.id);
 
     } catch (dbError) {
       const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown error';

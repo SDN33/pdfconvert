@@ -69,6 +69,7 @@ function App() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
   const [conversionsToday, setConversionsToday] = useState(0);
   const [userIP, setUserIP] = useState<string>('');
   const [isPremium, setIsPremium] = useState(false);
@@ -98,6 +99,16 @@ function App() {
   // Vérifier les cookies au chargement
   useEffect(() => {
     setShowCookieBanner(shouldShowCookieBanner());
+    
+    // Vérifier si c'est un retour après setup-password
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('welcome') === 'true') {
+      setShowWelcomeBanner(true);
+      // Nettoyer l'URL
+      window.history.replaceState({}, '', '/');
+      // Masquer après 10 secondes
+      setTimeout(() => setShowWelcomeBanner(false), 10000);
+    }
     
     // Récupérer l'IP de l'utilisateur
     const fetchIPAndCheck = async () => {
@@ -759,6 +770,33 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Bannière de bienvenue premium */}
+        {showWelcomeBanner && (
+          <div className="mb-6 bg-gradient-to-r from-green-500 to-cyan-600 text-white rounded-2xl shadow-xl p-6 animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">🎉 Bienvenue dans la famille Premium !</h3>
+                  <p className="text-green-100">Votre compte est maintenant actif avec des conversions illimitées à vie.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowWelcomeBanner(false)}
+                className="text-white hover:text-green-100 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
         <header className="text-center mb-12">
           <div className="flex items-center justify-center gap-4 mb-4">
             <img 

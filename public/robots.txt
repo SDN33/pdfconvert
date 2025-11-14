@@ -1,0 +1,15 @@
+# robots.txt pour markdownenpdf.com
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://markdownenpdf.com/sitemap.xml
+
+# Crawl-delay pour être gentil avec les serveurs
+Crawl-delay: 1
+
+# Bloquer les mauvais bots connus
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: DotBot
+Crawl-delay: 10

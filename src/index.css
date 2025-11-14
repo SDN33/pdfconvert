@@ -1,3 +1,62 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .backdrop-blur-sm {
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* Animation pour le spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Amélioration du rendu prose pour l'aperçu */
+.prose-cyan {
+  @apply text-slate-800;
+}
+
+.prose-cyan :where(h1, h2, h3, h4, h5, h6) {
+  @apply text-cyan-900;
+}
+
+.prose-cyan :where(a) {
+  @apply text-cyan-600;
+}
+
+.prose-cyan :where(strong) {
+  @apply text-cyan-900 font-bold;
+}
+
+.prose-cyan :where(code):not(:where(pre *)) {
+  @apply text-orange-600 bg-cyan-100 px-1.5 py-0.5 rounded;
+}
+
+.prose-cyan :where(pre) {
+  @apply bg-slate-800 border border-cyan-200 rounded-lg;
+}
+
+.prose-cyan :where(blockquote) {
+  @apply border-l-4 border-cyan-500 bg-cyan-50 italic pl-4 py-2;
+}

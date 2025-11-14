@@ -66,18 +66,18 @@ export async function isPremiumUser(email: string): Promise<boolean> {
       .from('premium_users')
       .select('*')
       .eq('email', email)
-      .eq('subscription_status', 'active')
       .single();
 
     if (error || !data) {
       return false;
     }
 
-    // Vérifier si lifetime ou si pas expiré
+    // Vérifier si lifetime
     if (data.is_lifetime) {
       return true;
     }
 
+    // Vérifier si pas expiré
     if (data.expires_at && new Date(data.expires_at) > new Date()) {
       return true;
     }

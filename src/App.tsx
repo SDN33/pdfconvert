@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { marked } from 'marked';
 import jsPDF from 'jspdf';
-import { canConvert, logConversion, getClientIP } from './lib/supabase';
+import { canConvert, logConversion, getClientIP, isPremiumUser } from './lib/supabase';
 import { redirectToCheckout } from './lib/stripe';
 import { shouldShowCookieBanner, acceptCookies } from './lib/cookies';
 import CookieBanner from './components/CookieBanner';
 import UpgradeModal from './components/UpgradeModal';
+import LoginModal from './components/LoginModal';
+import PremiumBanner from './components/PremiumBanner';
 
 interface PageSettings {
   fontSize: number;
@@ -63,8 +65,11 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [showCookieBanner, setShowCookieBanner] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [conversionsToday, setConversionsToday] = useState(0);
   const [userIP, setUserIP] = useState<string>('');
+  const [isPremium, setIsPremium] = useState(false);
+  const [premiumEmail, setPremiumEmail] = useState<string>('');
   
   const [settings, setSettings] = useState<PageSettings>({
     fontSize: 11,
@@ -92,9 +97,37 @@ function App() {
     setShowCookieBanner(shouldShowCookieBanner());
     
     // Récupérer l'IP de l'utilisateur
-    getClientIP().then(ip => {
+    const fetchIPAndCheck = async () => {
+      const ip = await getClientIP();
       setUserIP(ip);
-    });
+      
+      // Vérifier le nombre de conversions pour cet IP
+      const { conversionsToday: count } = await canConvert(ip);
+      setConversionsToday(count);
+    };
+    
+    fetchIPAndCheck();
+
+    // Vérifier si l'utilisateur est déjà connecté (premium)
+    const savedEmail = localStorage.getItem('premium_email');
+    if (savedEmail) {
+      isPremiumUser(savedEmail).then(premium => {
+        if (premium) {
+          setIsPremium(true);
+          setPremiumEmail(savedEmail);
+        } else {
+          localStorage.removeItem('premium_email');
+        }
+      });
+    }
+
+    // Écouter l'événement personnalisé pour ouvrir le modal upgrade
+    const handleShowUpgrade = () => setShowUpgradeModal(true);
+    window.addEventListener('showUpgradeModal', handleShowUpgrade);
+    
+    return () => {
+      window.removeEventListener('showUpgradeModal', handleShowUpgrade);
+    };
   }, []);
 
   const handleAcceptCookies = () => {
@@ -104,26 +137,49 @@ function App() {
 
   const handleUpgrade = async () => {
     try {
-      await redirectToCheckout();
+      await redirectToCheckout(premiumEmail || undefined);
     } catch (error) {
       console.error('Error upgrading:', error);
       alert('Erreur lors de la redirection vers le paiement. Veuillez réessayer.');
     }
   };
 
+  const handleLoginSuccess = (email: string) => {
+    setIsPremium(true);
+    setPremiumEmail(email);
+    setConversionsToday(0);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('premium_email');
+    setIsPremium(false);
+    setPremiumEmail('');
+  };
+
   const handleConvert = async () => {
     if (!markdown.trim()) return;
 
+    // Si l'utilisateur est premium, pas de limite
+    if (isPremium) {
+      setIsConverting(true);
+      await performConversion();
+      return;
+    }
+
     // Vérifier si l'utilisateur peut convertir
     const { allowed, conversionsToday: count } = await canConvert(userIP);
+    setConversionsToday(count);
     
     if (!allowed) {
-      setConversionsToday(count);
       setShowUpgradeModal(true);
       return;
     }
 
     setIsConverting(true);
+    await performConversion();
+  };
+
+  const performConversion = async () => {
 
     try {
       const pdf = new jsPDF();
@@ -665,12 +721,14 @@ function App() {
 
       pdf.save('document.pdf');
       
-      // Enregistrer la conversion
-      await logConversion(userIP, navigator.userAgent);
-      
-      // Mettre à jour le compteur
-      const { conversionsToday: newCount } = await canConvert(userIP);
-      setConversionsToday(newCount);
+      // Enregistrer la conversion SEULEMENT si non-premium
+      if (!isPremium) {
+        await logConversion(userIP, navigator.userAgent);
+        
+        // Mettre à jour le compteur
+        const { conversionsToday: newCount } = await canConvert(userIP);
+        setConversionsToday(newCount);
+      }
       
     } catch (error) {
       console.error('Erreur de conversion:', error);
@@ -1063,6 +1121,18 @@ function App() {
           </div>
         </div>
 
+        {/* Premium Banner - Sous l'éditeur (seulement pour non-premium) */}
+        <div className="mt-6">
+          <PremiumBanner 
+            conversionsLeft={2 - conversionsToday}
+            onLoginClick={() => setShowLoginModal(true)}
+            isPremium={isPremium}
+            premiumEmail={premiumEmail}
+            onLogout={handleLogout}
+            userIP={userIP}
+          />
+        </div>
+
         {/* Section Caractéristiques & Avantages */}
         <section className="mt-12 mb-8" aria-labelledby="features-heading">
           <h2 id="features-heading" className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
@@ -1308,6 +1378,14 @@ function App() {
       
       {/* Cookie Banner */}
       {showCookieBanner && <CookieBanner onAccept={handleAcceptCookies} />}
+      
+      {/* Login Modal */}
+      {showLoginModal && (
+        <LoginModal 
+          onClose={() => setShowLoginModal(false)}
+          onLoginSuccess={handleLoginSuccess}
+        />
+      )}
       
       {/* Upgrade Modal */}
       <UpgradeModal 

@@ -1804,15 +1804,23 @@ function App() {
         </footer>
         
         <footer className="mt-6 text-center text-xs text-slate-500">
-          <a href="/mentions-legales" className="hover:text-cyan-600 hover:underline mx-2">
-            Mentions légales
+          <a href="/privacy.html" className="hover:text-cyan-600 hover:underline mx-2" target="_blank" rel="noopener noreferrer">
+            Politique de confidentialité
           </a>
           •
-          <a href="mailto:contact@stillinov.com" className="hover:text-cyan-600 hover:underline mx-2">
+          <a href="/terms.html" className="hover:text-cyan-600 hover:underline mx-2" target="_blank" rel="noopener noreferrer">
+            Conditions d'utilisation
+          </a>
+          •
+          <a href="/about.html" className="hover:text-cyan-600 hover:underline mx-2" target="_blank" rel="noopener noreferrer">
+            À propos
+          </a>
+          •
+          <a href="/contact.html" className="hover:text-cyan-600 hover:underline mx-2" target="_blank" rel="noopener noreferrer">
             Contact
           </a>
           •
-          <span className="mx-2">Propulsé par <a href="https://stillinov.com">Still-inov Agency</a></span>
+          <span className="mx-2">© 2025 MarkdownEnPDF.com</span>
         </footer>
       </div>
       

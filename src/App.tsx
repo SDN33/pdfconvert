@@ -9,6 +9,7 @@ import UpgradeModal from './components/UpgradeModal';
 import LoginModal from './components/LoginModal';
 import RegisterModal from './components/RegisterModal';
 import PremiumBanner from './components/PremiumBanner';
+import { Analytics } from "@vercel/analytics/next"
 
 interface PageSettings {
   fontSize: number;
@@ -767,11 +768,13 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Bannière de bienvenue premium */}
-        {showWelcomeBanner && (
-          <div className="mb-6 bg-gradient-to-r from-green-500 to-cyan-600 text-white rounded-2xl shadow-xl p-6 animate-fadeIn">
+    <>
+      <Analytics />
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50">
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+          {/* Bannière de bienvenue premium */}
+          {showWelcomeBanner && (
+            <div className="mb-6 bg-gradient-to-r from-green-500 to-cyan-600 text-white rounded-2xl shadow-xl p-6 animate-fadeIn">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
@@ -1838,6 +1841,7 @@ function App() {
         onUpgrade={handleUpgrade}
       />
     </div>
+    </>
   );
 }
 

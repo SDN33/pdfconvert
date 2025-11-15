@@ -16,12 +16,6 @@ export async function redirectToCheckout(email?: string) {
     console.log('🛒 Démarrage du processus de paiement...');
     console.log('📧 Email:', email || 'non fourni');
     console.log('🔑 Stripe Public Key:', stripePublicKey ? 'Configurée ✓' : 'MANQUANTE ✗');
-    
-    const stripe = await getStripe();
-    if (!stripe) {
-      console.error('❌ Stripe n\'a pas pu être chargé');
-      throw new Error('Stripe failed to load');
-    }
 
     // En développement, afficher une alerte et simuler le succès
     const isDev = import.meta.env.DEV;
@@ -30,15 +24,13 @@ export async function redirectToCheckout(email?: string) {
       console.warn('⚠️ MODE DÉVELOPPEMENT : Simulation du paiement');
       alert(`🧪 MODE DÉVELOPPEMENT\n\n✅ En production, l'utilisateur serait redirigé vers Stripe pour payer 2,99€.\n\n📧 Email: ${email || 'non fourni'}\n\nPour tester:\n1. Déployez sur Vercel\n2. Utilisez la carte test: 4242 4242 4242 4242\n3. Vous serez redirigé vers /setup-password`);
       
-      // Simuler un succès en redirigeant vers /setup-password avec un faux session_id
       console.log('Mode dev: simulation du flow de paiement');
-      // Ne pas rediriger pour éviter de casser le flow
       return;
     }
 
     console.log('🌐 Appel de l\'API pour créer la session de paiement...');
     
-    // En production, créer une session via l'API backend
+    // Créer une session via l'API backend
     const response = await fetch('/api/create-checkout-session', {
       method: 'POST',
       headers: {
@@ -66,23 +58,16 @@ export async function redirectToCheckout(email?: string) {
       throw new Error(data.error);
     }
 
-    if (!data.sessionId) {
-      console.error('❌ Session ID manquant dans la réponse');
-      throw new Error('Session ID manquant');
+    if (!data.url) {
+      console.error('❌ URL de checkout manquante dans la réponse');
+      throw new Error('URL de checkout manquante');
     }
 
-    console.log('✅ Session créée:', data.sessionId);
+    console.log('✅ Session créée avec succès');
     console.log('🔄 Redirection vers Stripe Checkout...');
 
-    // Rediriger vers la session de paiement
-    const result = await stripe.redirectToCheckout({
-      sessionId: data.sessionId,
-    });
-
-    if (result.error) {
-      console.error('❌ Erreur lors de la redirection:', result.error);
-      throw result.error;
-    }
+    // Rediriger directement vers l'URL Stripe Checkout
+    window.location.href = data.url;
   } catch (error: any) {
     console.error('💥 Erreur dans redirectToCheckout:', error);
     console.error('Type d\'erreur:', error.constructor.name);

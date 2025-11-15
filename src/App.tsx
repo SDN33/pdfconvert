@@ -9,7 +9,7 @@ import UpgradeModal from './components/UpgradeModal';
 import LoginModal from './components/LoginModal';
 import RegisterModal from './components/RegisterModal';
 import PremiumBanner from './components/PremiumBanner';
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
 
 interface PageSettings {
   fontSize: number;

@@ -1,11 +1,10 @@
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  conversionsToday: number;
   onUpgrade: () => void;
 }
 
-export default function UpgradeModal({ isOpen, onClose, conversionsToday, onUpgrade }: UpgradeModalProps) {
+export default function UpgradeModal({ isOpen, onClose, onUpgrade }: UpgradeModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -24,10 +23,10 @@ export default function UpgradeModal({ isOpen, onClose, conversionsToday, onUpgr
         <div className="text-center mb-6">
           <div className="text-6xl mb-4">🚀</div>
           <h2 className="text-3xl font-bold text-slate-800 mb-2">
-            Limite atteinte !
+            Limite de 2 conversions atteinte
           </h2>
           <p className="text-slate-600">
-            Vous avez utilisé vos <strong>{conversionsToday} conversions gratuites</strong> aujourd'hui.
+            Passez à l'illimité pour <strong>seulement 2,99€</strong> (paiement unique, à vie)
           </p>
         </div>
 

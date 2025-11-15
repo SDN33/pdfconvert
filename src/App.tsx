@@ -812,7 +812,7 @@ function App() {
             Le convertisseur Markdown vers PDF le plus simple et rapide 🚀
           </p>
           <p className="text-slate-600 text-base max-w-3xl mx-auto">
-            Transformez vos fichiers <strong>.md</strong> en documents <strong>PDF professionnels</strong> en quelques secondes. 100% gratuit, sans inscription, avec support complet du formatage Markdown.
+            Transformez vos fichiers <strong>.md</strong> en documents <strong>PDF professionnels</strong> en quelques secondes.<br />100% gratuit, sans inscription, avec support complet du formatage Markdown.
           </p>
         </header>
 
@@ -825,6 +825,14 @@ function App() {
               data-ad-format="horizontal"
               data-full-width-responsive="true"></ins>
           </div>
+          <PremiumBanner 
+            conversionsLeft={2 - conversionsToday}
+            onLoginClick={() => setShowLoginModal(true)}
+            isPremium={isPremium}
+            premiumEmail={premiumEmail}
+            onLogout={handleLogout}
+            userIP={userIP}
+          />
 
           {/* Panneau de réglages - Mise en avant */}
           <div className="p-8 border-b border-cyan-200 bg-gradient-to-r from-cyan-100 via-blue-100 to-cyan-100">
@@ -1180,24 +1188,25 @@ function App() {
 
         {/* Premium Banner - Sous l'éditeur (seulement pour non-premium) */}
         <div className="mt-6">
-          <PremiumBanner 
-            conversionsLeft={2 - conversionsToday}
-            onLoginClick={() => setShowLoginModal(true)}
-            isPremium={isPremium}
-            premiumEmail={premiumEmail}
-            onLogout={handleLogout}
-            userIP={userIP}
-          />
           
-          {/* Bouton d'inscription si non connecté */}
-          {!isPremium && (
-            <div className="mt-4 text-center">
+          {/* Boutons si non connecté */}
+          {!isPremium && !premiumEmail && (
+            <div className="mt-4 text-center space-y-2">
               <button
                 onClick={() => setShowRegisterModal(true)}
                 data-register-trigger
+                className="text-sm text-gray-600 hover:text-gray-700 font-medium underline"
+              >
+                Créer un compte gratuit (2/jour)
+              </button>
+              <div className="text-xs text-gray-500">
+                ou
+              </div>
+              <button
+                onClick={() => setShowLoginModal(true)}
                 className="text-sm text-cyan-600 hover:text-cyan-700 font-medium underline"
               >
-                Créer un compte gratuit pour suivre vos conversions
+                Se connecter
               </button>
             </div>
           )}
@@ -1442,7 +1451,7 @@ function App() {
             Contact
           </a>
           •
-          <span className="mx-2">Géré par Stéphane Dei-Negri</span>
+          <span className="mx-2">Propulsé par <a href="https://stilliov.com">Still-inov Agency</a></span>
         </footer>
       </div>
       
@@ -1470,7 +1479,6 @@ function App() {
       <UpgradeModal 
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
-        conversionsToday={conversionsToday}
         onUpgrade={handleUpgrade}
       />
     </div>

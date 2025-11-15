@@ -13,7 +13,24 @@ export const getStripe = () => {
 
 export async function redirectToCheckout(email?: string) {
   try {
-    // Créer une session de paiement via l'API backend
+    const stripe = await getStripe();
+    if (!stripe) {
+      throw new Error('Stripe failed to load');
+    }
+
+    // En développement, afficher une alerte et simuler le succès
+    const isDev = import.meta.env.DEV;
+    
+    if (isDev) {
+      alert(`🧪 MODE DÉVELOPPEMENT\n\n✅ En production, l'utilisateur serait redirigé vers Stripe pour payer 2,99€.\n\n📧 Email: ${email || 'non fourni'}\n\nPour tester:\n1. Déployez sur Vercel\n2. Utilisez la carte test: 4242 4242 4242 4242\n3. Vous serez redirigé vers /setup-password`);
+      
+      // Simuler un succès en redirigeant vers /setup-password avec un faux session_id
+      console.log('Mode dev: simulation du flow de paiement');
+      // Ne pas rediriger pour éviter de casser le flow
+      return;
+    }
+
+    // En production, créer une session via l'API backend
     const response = await fetch('/api/create-checkout-session', {
       method: 'POST',
       headers: {
@@ -25,6 +42,10 @@ export async function redirectToCheckout(email?: string) {
       }),
     });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     const data = await response.json();
 
     if (data.error) {
@@ -32,13 +53,7 @@ export async function redirectToCheckout(email?: string) {
       throw new Error(data.error);
     }
 
-    // Rediriger directement vers l'URL de la session Stripe
-    const stripe = await getStripe();
-    if (!stripe) {
-      throw new Error('Stripe failed to load');
-    }
-
-    // Utiliser la nouvelle méthode recommandée
+    // Rediriger vers la session de paiement
     const result = await stripe.redirectToCheckout({
       sessionId: data.sessionId,
     });

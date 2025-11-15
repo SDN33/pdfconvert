@@ -11,16 +11,22 @@ export interface ConversionCheckResult {
   conversionsUsed: number;
   conversionsLimit: number;
   isPremium: boolean;
+  reason?: string;
   message?: string;
 }
 
 // Fonction centralisée pour vérifier si une conversion est autorisée
+// Tout est géré via la base de données (IP + email)
 export async function checkConversionAllowed(
   ipAddress: string, 
   email?: string
 ): Promise<ConversionCheckResult> {
   try {
     // Utiliser la fonction SQL pour vérifier les conversions
+    // Cette fonction gère automatiquement :
+    // - Les utilisateurs premium (illimité)
+    // - Les comptes gratuits (2/jour par IP)
+    // - Les utilisateurs anonymes (2/jour par IP)
     const { data, error } = await supabase
       .rpc('get_remaining_conversions', {
         user_ip: ipAddress,
@@ -34,27 +40,32 @@ export async function checkConversionAllowed(
         allowed: true,
         conversionsUsed: 0,
         conversionsLimit: 2,
-        isPremium: false
+        isPremium: false,
+        reason: 'error_fallback'
       };
     }
 
     const result = data[0];
 
+    // Messages personnalisés selon le type d'utilisateur
+    let message = '';
     if (!result.allowed) {
-      return {
-        allowed: false,
-        conversionsUsed: result.conversions_used,
-        conversionsLimit: result.conversions_limit,
-        isPremium: false,
-        message: 'Limite de conversions atteinte. Passez à la version premium pour un accès illimité !'
-      };
+      if (result.reason === 'free_account_limit_reached') {
+        message = 'Vous avez atteint votre limite de 2 conversions gratuites par jour. Passez à l\'illimité pour seulement 2,99€ !';
+      } else if (result.reason === 'anonymous_limit_reached') {
+        message = 'Limite de 2 conversions atteinte. Créez un compte gratuit ou passez à l\'illimité !';
+      } else {
+        message = 'Limite de conversions atteinte. Passez à la version premium pour un accès illimité !';
+      }
     }
 
     return {
-      allowed: true,
+      allowed: result.allowed,
       conversionsUsed: result.conversions_used,
       conversionsLimit: result.conversions_limit,
-      isPremium: result.is_premium
+      isPremium: result.is_premium,
+      reason: result.reason,
+      message
     };
   } catch (error) {
     console.error('Error in checkConversionAllowed:', error);
@@ -62,7 +73,8 @@ export async function checkConversionAllowed(
       allowed: true,
       conversionsUsed: 0,
       conversionsLimit: 2,
-      isPremium: false
+      isPremium: false,
+      reason: 'error_fallback'
     };
   }
 }
@@ -77,10 +89,13 @@ export async function canConvert(ipAddress: string): Promise<{ allowed: boolean;
   };
 }
 
-// Fonction pour enregistrer une conversion
+// Fonction pour enregistrer une conversion dans la DB
+// Cette fonction enregistre TOUJOURS dans conversion_logs (pour le comptage par IP)
+// Elle met aussi à jour free_users si un email est fourni (pour les stats)
 export async function logConversion(ipAddress: string, userAgent: string, email?: string): Promise<void> {
   try {
-    const { error } = await supabase
+    // 1. TOUJOURS enregistrer dans conversion_logs (pour le comptage par IP)
+    const { error: logError } = await supabase
       .from('conversion_logs')
       .insert([
         {
@@ -90,11 +105,11 @@ export async function logConversion(ipAddress: string, userAgent: string, email?
         }
       ]);
 
-    if (error) {
-      console.error('Error logging conversion:', error);
+    if (logError) {
+      console.error('Error logging conversion:', logError);
     }
 
-    // Si un email est fourni, mettre à jour les stats de l'utilisateur gratuit
+    // 2. Si un email est fourni (compte gratuit), mettre à jour les stats dans free_users
     if (email) {
       const { data: freeUser } = await supabase
         .from('free_users')
@@ -103,7 +118,7 @@ export async function logConversion(ipAddress: string, userAgent: string, email?
         .single();
 
       if (freeUser) {
-        // Mettre à jour le compteur
+        // Mettre à jour le compteur et la dernière conversion
         await supabase
           .from('free_users')
           .update({
@@ -113,7 +128,7 @@ export async function logConversion(ipAddress: string, userAgent: string, email?
           })
           .eq('email', email);
       } else {
-        // Créer un nouvel utilisateur gratuit
+        // Créer un nouvel utilisateur gratuit si n'existe pas
         await supabase
           .from('free_users')
           .insert([{

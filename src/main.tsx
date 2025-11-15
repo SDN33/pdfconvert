@@ -5,6 +5,7 @@ import App from './App.tsx';
 import MentionsLegales from './pages/MentionsLegales.tsx';
 import Success from './pages/Success.tsx';
 import SetupPassword from './pages/SetupPassword.tsx';
+import AuthCallback from './pages/AuthCallback.tsx';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/mentions-legales" element={<MentionsLegales />} />
         <Route path="/success" element={<Success />} />
         <Route path="/setup-password" element={<SetupPassword />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

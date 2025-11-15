@@ -162,6 +162,7 @@ export default function SetupPassword() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
               className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
               placeholder="Minimum 8 caractères"
               required
@@ -179,6 +180,7 @@ export default function SetupPassword() {
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
               className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
               placeholder="Confirmer votre mot de passe"
               required

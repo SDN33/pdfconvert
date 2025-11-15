@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { loginPremium } from '../lib/auth';
+import { loginPremium, loginWithGoogle } from '../lib/auth';
 
 interface LoginModalProps {
   onClose: () => void;
@@ -46,6 +46,27 @@ export default function LoginModal({ onClose, onLoginSuccess }: LoginModalProps)
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const result = await loginWithGoogle();
+      
+      if (!result.success) {
+        setMessage(result.error || '❌ Erreur de connexion avec Google.');
+        setIsSuccess(false);
+        setLoading(false);
+      }
+      // La redirection vers Google se fait automatiquement
+    } catch (error) {
+      console.error('Google login error:', error);
+      setMessage('❌ Erreur de connexion avec Google.');
+      setIsSuccess(false);
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-fade-in">
@@ -83,6 +104,7 @@ export default function LoginModal({ onClose, onLoginSuccess }: LoginModalProps)
               onChange={(e) => setEmail(e.target.value)}
               placeholder="votre@email.com"
               required
+              autoComplete="email"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
               disabled={loading}
             />
@@ -99,6 +121,7 @@ export default function LoginModal({ onClose, onLoginSuccess }: LoginModalProps)
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Votre mot de passe"
               required
+              autoComplete="current-password"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
               disabled={loading}
             />
@@ -121,35 +144,44 @@ export default function LoginModal({ onClose, onLoginSuccess }: LoginModalProps)
           >
             {loading ? 'Connexion...' : 'Se connecter'}
           </button>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">OU</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            className="w-full bg-white border-2 border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            <span>Continuer avec Google</span>
+          </button>
         </form>
 
         <div className="mt-6 pt-6 border-t border-gray-200">
           <p className="text-center text-sm text-gray-600 mb-3">
-            Pas encore de compte ?
+            Pas encore premium ?
           </p>
           <button
             onClick={() => {
               onClose();
-              // Trigger register modal
-              setTimeout(() => {
-                const registerBtn = document.querySelector('[data-register-trigger]') as HTMLButtonElement;
-                if (registerBtn) registerBtn.click();
-              }, 100);
-            }}
-            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all mb-2"
-          >
-            🚀 Créer un compte - 2,99€ à vie
-          </button>
-          
-          <button
-            onClick={() => {
-              // Trigger upgrade modal for direct purchase
-              onClose();
               window.dispatchEvent(new CustomEvent('showUpgradeModal'));
             }}
-            className="w-full text-cyan-600 hover:text-cyan-700 text-sm font-medium"
+            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all"
           >
-            Acheter sans créer de compte
+            🚀 Passer à l'illimité - 2,99€ à vie
           </button>
         </div>
       </div>

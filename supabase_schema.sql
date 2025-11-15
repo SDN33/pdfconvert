@@ -57,44 +57,80 @@ CREATE TABLE free_users (
 CREATE INDEX idx_free_users_email ON free_users(email);
 CREATE INDEX idx_free_users_ip ON free_users(ip_address);
 
--- Fonction pour obtenir le nombre de conversions restantes
+-- Fonction pour obtenir le nombre de conversions restantes (AMÉLIORÉE)
 CREATE OR REPLACE FUNCTION get_remaining_conversions(user_ip TEXT, user_email TEXT DEFAULT NULL)
 RETURNS TABLE(
   allowed BOOLEAN,
   conversions_used INTEGER,
   conversions_limit INTEGER,
-  is_premium BOOLEAN
+  is_premium BOOLEAN,
+  reason TEXT
 ) AS $$
 DECLARE
-  premium_check BOOLEAN;
-  ip_count INTEGER;
-  email_count INTEGER;
+  premium_check BOOLEAN := false;
+  ip_count INTEGER := 0;
+  email_ip_count INTEGER := 0;
+  final_count INTEGER := 0;
 BEGIN
-  -- Vérifier si l'utilisateur est premium (par email)
+  -- 1. Vérifier si l'utilisateur est premium (par email)
   IF user_email IS NOT NULL THEN
     SELECT EXISTS(
       SELECT 1 FROM premium_users 
       WHERE email = user_email 
       AND is_lifetime = true
+      AND subscription_status = 'active'
     ) INTO premium_check;
     
+    -- Si premium, conversions illimitées
     IF premium_check THEN
-      RETURN QUERY SELECT true, 0, 999999, true;
+      RETURN QUERY SELECT true, 0, 999999, true, 'premium_unlimited'::TEXT;
       RETURN;
     END IF;
   END IF;
   
-  -- Compter les conversions des dernières 24h par IP
+  -- 2. Compter les conversions des dernières 24h par IP (utilisateurs anonymes)
   SELECT COUNT(*) INTO ip_count
   FROM conversion_logs
   WHERE ip_address = user_ip
   AND converted_at > NOW() - INTERVAL '24 hours';
   
-  -- Si limite atteinte, refuser
-  IF ip_count >= 2 THEN
-    RETURN QUERY SELECT false, ip_count, 2, false;
+  -- 3. Si un email est fourni (compte gratuit), compter aussi par email+IP combiné
+  IF user_email IS NOT NULL THEN
+    -- Compter les conversions du compte gratuit dans les dernières 24h
+    SELECT COUNT(*) INTO email_ip_count
+    FROM conversion_logs
+    WHERE ip_address = user_ip
+    AND converted_at > NOW() - INTERVAL '24 hours';
+    
+    -- Pour un compte gratuit, on utilise le même compteur IP (2 conversions/jour)
+    -- Cela évite qu'un utilisateur crée plusieurs comptes sur la même IP
+    final_count := GREATEST(ip_count, email_ip_count);
   ELSE
-    RETURN QUERY SELECT true, ip_count, 2, false;
+    -- Utilisateur anonyme : uniquement par IP
+    final_count := ip_count;
+  END IF;
+  
+  -- 4. Vérifier la limite (2 conversions par 24h)
+  IF final_count >= 2 THEN
+    RETURN QUERY SELECT 
+      false, 
+      final_count, 
+      2, 
+      false, 
+      CASE 
+        WHEN user_email IS NOT NULL THEN 'free_account_limit_reached'
+        ELSE 'anonymous_limit_reached'
+      END::TEXT;
+  ELSE
+    RETURN QUERY SELECT 
+      true, 
+      final_count, 
+      2, 
+      false,
+      CASE 
+        WHEN user_email IS NOT NULL THEN 'free_account_allowed'
+        ELSE 'anonymous_allowed'
+      END::TEXT;
   END IF;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

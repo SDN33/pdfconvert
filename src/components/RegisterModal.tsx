@@ -91,10 +91,10 @@ export default function RegisterModal({ isOpen, onClose, onRegisterSuccess }: Re
 
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent mb-2">
-            Créer un compte
+            Créer un compte gratuit
           </h2>
           <p className="text-gray-600">
-            Accédez à vos conversions premium
+            Suivez vos conversions (2/jour gratuit)
           </p>
         </div>
 
@@ -125,6 +125,7 @@ export default function RegisterModal({ isOpen, onClose, onRegisterSuccess }: Re
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                 placeholder="votre@email.com"
                 required
@@ -141,6 +142,7 @@ export default function RegisterModal({ isOpen, onClose, onRegisterSuccess }: Re
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                 placeholder="Minimum 8 caractères"
                 required
@@ -158,6 +160,7 @@ export default function RegisterModal({ isOpen, onClose, onRegisterSuccess }: Re
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                 placeholder="Confirmer votre mot de passe"
                 required
@@ -171,7 +174,7 @@ export default function RegisterModal({ isOpen, onClose, onRegisterSuccess }: Re
               disabled={loading}
               className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white py-3 px-6 rounded-xl font-semibold hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Création en cours...' : 'Créer mon compte'}
+              {loading ? 'Création en cours...' : 'Créer mon compte gratuit'}
             </button>
           </form>
         )}

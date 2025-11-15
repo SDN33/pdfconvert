@@ -26,7 +26,7 @@ export default function UpgradeModal({ isOpen, onClose, onUpgrade }: UpgradeModa
             Limite de 2 conversions atteinte
           </h2>
           <p className="text-slate-600">
-            Passez à l'illimité pour <strong>seulement 2,99€</strong> (paiement unique, à vie)
+            Passez à l'illimité pour <strong>seulement 2,99€</strong><br />(paiement unique, à vie)
           </p>
         </div>
 

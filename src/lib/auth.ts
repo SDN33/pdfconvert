@@ -13,10 +13,14 @@ export interface AuthUser {
 // Connexion avec Google via Supabase Auth
 export async function loginWithGoogle(): Promise<{ success: boolean; error?: string }> {
   try {
+    // Utiliser l'origine actuelle (production ou localhost)
+    const redirectUrl = `${window.location.origin}/auth/callback`;
+    console.log('🔐 Google OAuth redirect URL:', redirectUrl);
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: redirectUrl,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',

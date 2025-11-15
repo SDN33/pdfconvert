@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { marked } from 'marked';
 import jsPDF from 'jspdf';
 import { checkConversionAllowed, logConversion, getClientIP } from './lib/supabase';
 import { verifySession, logout as authLogout } from './lib/auth';
@@ -781,8 +780,8 @@ function App() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">🎉 Bienvenue dans la famille Premium !</h3>
-                  <p className="text-green-100">Votre compte est maintenant actif avec des conversions illimitées à vie.</p>
+                  <h3 className="text-xl font-bold">🎉 Bienvenue !</h3>
+                  <p className="text-green-100">Votre compte est maintenant actif.</p>
                 </div>
               </div>
               <button
@@ -1150,13 +1149,370 @@ function App() {
                 <span role="img" aria-label="Icône document">
                   <FileIcon />
                 </span>
-                <span>Aperçu en Temps Réel</span>
+                <span>Aperçu PDF Stylisé</span>
               </label>
-              <div className="w-full h-96 p-4 border-2 border-cyan-200 rounded-xl bg-gradient-to-br from-cyan-50/50 to-blue-50/50 overflow-auto prose prose-sm prose-cyan max-w-none shadow-sm" role="region" aria-label="Aperçu du rendu Markdown">
+              <div 
+                className="w-full h-96 overflow-auto border-2 border-cyan-200 rounded-xl shadow-sm bg-white" 
+                role="region" 
+                aria-label="Aperçu du rendu PDF avec styles"
+              >
                 {markdown ? (
-                  <div dangerouslySetInnerHTML={{ __html: marked.parse(markdown) as string }} />
+                  <div 
+                    className="bg-white"
+                    style={{
+                      padding: `${settings.marginTop}px ${settings.marginRight}px ${settings.marginBottom}px ${settings.marginLeft}px`,
+                      fontSize: `${settings.fontSize}px`,
+                      lineHeight: settings.lineHeight,
+                      fontFamily: 'system-ui, -apple-system, sans-serif',
+                      position: 'relative',
+                    }}
+                  >
+                    {/* Bordures décoratives si activées */}
+                    {settings.addBorders && (
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          inset: '10px',
+                          border: settings.borderStyle === 'double' ? '2px solid' : '3px solid',
+                          borderRadius: settings.borderStyle === 'rounded' ? '10px' : '0',
+                          borderColor: (() => {
+                            const colors = {
+                              blue: '#1e40af',
+                              cyan: '#0891b2',
+                              purple: '#8b5cf6',
+                              green: '#22c55e',
+                              orange: '#f97316',
+                              red: '#dc2626',
+                              pink: '#ec4899',
+                              yellow: '#eab308',
+                              indigo: '#6366f1',
+                              teal: '#14b8a6'
+                            };
+                            return colors[settings.themeColor];
+                          })(),
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    )}
+                    
+                    {/* En-tête personnalisé */}
+                    {settings.headerText && (
+                      <div 
+                        style={{
+                          textAlign: 'center',
+                          fontSize: '9px',
+                          color: '#666',
+                          marginBottom: '15px',
+                          paddingBottom: '8px',
+                          borderBottom: '1px solid #e5e7eb',
+                        }}
+                      >
+                        {settings.headerText}
+                      </div>
+                    )}
+                    
+                    {/* Contenu markdown stylisé */}
+                    <div 
+                      style={{
+                        color: '#000',
+                        wordWrap: 'break-word',
+                      }}
+                    >
+                      {markdown.split('\n').map((line, idx) => {
+                        // Titres H1
+                        if (line.startsWith('# ')) {
+                          const themeColors = {
+                            blue: '#1e40af',
+                            cyan: '#0891b2',
+                            purple: '#8b5cf6',
+                            green: '#22c55e',
+                            orange: '#f97316',
+                            red: '#dc2626',
+                            pink: '#ec4899',
+                            yellow: '#eab308',
+                            indigo: '#6366f1',
+                            teal: '#14b8a6'
+                          };
+                          const color = themeColors[settings.themeColor];
+                          
+                          return (
+                            <h1 
+                              key={idx}
+                              style={{
+                                fontSize: `${settings.titleSize}px`,
+                                fontWeight: 'bold',
+                                color: settings.titleStyle === 'background' ? '#fff' : color,
+                                backgroundColor: settings.titleStyle === 'background' ? color : 'transparent',
+                                padding: settings.titleStyle === 'background' ? '8px 10px' : '4px 0',
+                                borderRadius: settings.titleStyle === 'background' ? '6px' : '0',
+                                borderBottom: settings.titleStyle === 'underline' ? `3px solid ${color}` : 'none',
+                                marginTop: '16px',
+                                marginBottom: `${settings.titleSize * 0.5}px`,
+                              }}
+                            >
+                              {line.substring(2)}
+                            </h1>
+                          );
+                        }
+                        
+                        // Titres H2
+                        if (line.startsWith('## ')) {
+                          return (
+                            <h2 
+                              key={idx}
+                              style={{
+                                fontSize: `${settings.subtitleSize}px`,
+                                fontWeight: 'bold',
+                                color: '#1e40af',
+                                marginTop: '12px',
+                                marginBottom: '8px',
+                              }}
+                            >
+                              {line.substring(3)}
+                            </h2>
+                          );
+                        }
+                        
+                        // Titres H3
+                        if (line.startsWith('### ')) {
+                          return (
+                            <h3 
+                              key={idx}
+                              style={{
+                                fontSize: `${settings.fontSize + 2}px`,
+                                fontWeight: 'bold',
+                                color: '#1e40af',
+                                marginTop: '10px',
+                                marginBottom: '6px',
+                              }}
+                            >
+                              {line.substring(4)}
+                            </h3>
+                          );
+                        }
+                        
+                        // Blocs de code
+                        if (line.startsWith('```')) {
+                          return <div key={idx} />;
+                        }
+                        
+                        // Listes à puces
+                        if (line.match(/^[-*+]\s/)) {
+                          return (
+                            <div 
+                              key={idx}
+                              style={{
+                                display: 'flex',
+                                gap: '8px',
+                                marginBottom: '4px',
+                                paddingLeft: '0px',
+                              }}
+                            >
+                              <span style={{ color: '#0891b2', fontWeight: 'bold' }}>•</span>
+                              <span>{line.substring(2)}</span>
+                            </div>
+                          );
+                        }
+                        
+                        // Listes numérotées
+                        if (line.match(/^\d+\.\s/)) {
+                          const match = line.match(/^(\d+)\.\s(.+)$/);
+                          if (match) {
+                            return (
+                              <div 
+                                key={idx}
+                                style={{
+                                  display: 'flex',
+                                  gap: '8px',
+                                  marginBottom: '4px',
+                                }}
+                              >
+                                <span style={{ fontWeight: 'bold', minWidth: '20px' }}>{match[1]}.</span>
+                                <span>{match[2]}</span>
+                              </div>
+                            );
+                          }
+                        }
+                        
+                        // Citations
+                        if (line.startsWith('> ')) {
+                          return (
+                            <div 
+                              key={idx}
+                              style={{
+                                borderLeft: '4px solid #8b5cf6',
+                                backgroundColor: '#f9f7ff',
+                                padding: '8px 12px',
+                                marginTop: '8px',
+                                marginBottom: '8px',
+                                fontStyle: 'italic',
+                                color: '#666',
+                              }}
+                            >
+                              {line.substring(2)}
+                            </div>
+                          );
+                        }
+                        
+                        // Séparateurs
+                        if (line.trim() === '---' || line.trim() === '***') {
+                          return (
+                            <hr 
+                              key={idx}
+                              style={{
+                                border: 'none',
+                                borderTop: '2px solid #d1d5db',
+                                margin: '16px 0',
+                              }}
+                            />
+                          );
+                        }
+                        
+                        // Lignes vides
+                        if (!line.trim()) {
+                          return <div key={idx} style={{ height: `${settings.paragraphSpacing}px` }} />;
+                        }
+                        
+                        // Paragraphes avec formatage inline
+                        const processInlineFormatting = (text: string) => {
+                          const parts: React.ReactNode[] = [];
+                          let remaining = text;
+                          let key = 0;
+                          
+                          // Gras
+                          const boldRegex = /\*\*(.+?)\*\*/g;
+                          remaining = remaining.replace(boldRegex, (_match, content) => {
+                            parts.push(<strong key={`bold-${key++}`}>{content}</strong>);
+                            return `__PART_${parts.length - 1}__`;
+                          });
+                          
+                          // Italique
+                          const italicRegex = /\*(.+?)\*/g;
+                          remaining = remaining.replace(italicRegex, (_match, content) => {
+                            parts.push(<em key={`italic-${key++}`}>{content}</em>);
+                            return `__PART_${parts.length - 1}__`;
+                          });
+                          
+                          // Code inline
+                          const codeRegex = /`(.+?)`/g;
+                          remaining = remaining.replace(codeRegex, (_match, content) => {
+                            parts.push(
+                              <code 
+                                key={`code-${key++}`} 
+                                style={{
+                                  backgroundColor: '#f3f4f6',
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  fontFamily: 'monospace',
+                                  fontSize: '0.9em',
+                                  color: '#dc2626',
+                                }}
+                              >
+                                {content}
+                              </code>
+                            );
+                            return `__PART_${parts.length - 1}__`;
+                          });
+                          
+                          // Liens
+                          const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+                          remaining = remaining.replace(linkRegex, (_match, text, url) => {
+                            parts.push(
+                              <a 
+                                key={`link-${key++}`} 
+                                href={url}
+                                style={{ color: '#0891b2', textDecoration: 'underline' }}
+                              >
+                                {text}
+                              </a>
+                            );
+                            return `__PART_${parts.length - 1}__`;
+                          });
+                          
+                          // Reconstituer le texte
+                          const finalParts: React.ReactNode[] = [];
+                          remaining.split(/(__PART_\d+__)/g).forEach((segment) => {
+                            const partMatch = segment.match(/__PART_(\d+)__/);
+                            if (partMatch) {
+                              finalParts.push(parts[parseInt(partMatch[1])]);
+                            } else if (segment) {
+                              finalParts.push(segment);
+                            }
+                          });
+                          
+                          return finalParts.length > 0 ? finalParts : text;
+                        };
+                        
+                        return (
+                          <p 
+                            key={idx}
+                            style={{
+                              marginBottom: `${settings.paragraphSpacing}px`,
+                              textAlign: 'left',
+                            }}
+                          >
+                            {processInlineFormatting(line)}
+                          </p>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Pied de page personnalisé */}
+                    {settings.footerText && (
+                      <div 
+                        style={{
+                          textAlign: 'center',
+                          fontSize: '9px',
+                          color: '#666',
+                          marginTop: '20px',
+                          paddingTop: '8px',
+                          borderTop: '1px solid #e5e7eb',
+                        }}
+                      >
+                        {settings.footerText}
+                      </div>
+                    )}
+                    
+                    {/* Numéro de page */}
+                    {settings.addPageNumbers && (
+                      <div 
+                        style={{
+                          textAlign: settings.pageNumberPosition,
+                          fontSize: '9px',
+                          color: '#999',
+                          marginTop: '12px',
+                        }}
+                      >
+                        Page 1 / 1
+                      </div>
+                    )}
+                    
+                    {/* Watermark */}
+                    {settings.addWatermark && (
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%) rotate(45deg)',
+                          fontSize: '40px',
+                          color: 'rgba(220, 220, 220, 0.3)',
+                          fontWeight: 'bold',
+                          pointerEvents: 'none',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        MARKDOWN TO PDF
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <p className="text-slate-400 italic">Votre aperçu apparaîtra ici au fur et à mesure de votre saisie...</p>
+                  <p 
+                    className="text-slate-400 italic p-6"
+                    style={{ fontSize: '14px' }}
+                  >
+                    Votre aperçu PDF stylisé apparaîtra ici avec toutes vos personnalisations (couleurs, marges, bordures, etc.)...
+                  </p>
                 )}
               </div>
             </div>

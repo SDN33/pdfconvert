@@ -15,6 +15,7 @@ const checkoutSchema = z.object({
 
 // Liste blanche des prix autorisés (à configurer selon vos prix réels)
 const ALLOWED_PRICE_IDS = [
+  'price_1STW1z1hBWMOXJEVjsamoo6b', // Prix principal (2,99€ lifetime)
   process.env.STRIPE_PRICE_ID_LIFETIME || 'price_1QULQEP7W0mQAYPWdxPNYKoV',
 ];
 

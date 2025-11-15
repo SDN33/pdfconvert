@@ -86,8 +86,8 @@ export default function LoginModal({ onClose, onLoginSuccess }: LoginModalProps)
               <circle cx="12" cy="7" r="4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Connexion Premium</h2>
-          <p className="text-gray-600 text-sm">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Connexion Premium</h2>
+          <p className="text-gray-600 text-xs sm:text-sm">
             Connectez-vous pour accéder à vos conversions illimitées
           </p>
         </div>

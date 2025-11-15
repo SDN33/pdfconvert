@@ -224,44 +224,44 @@ export default function PremiumBanner({
           </div>
 
           {/* Bannière CTA premium améliorée */}
-          <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 rounded-xl p-5 text-white shadow-2xl relative overflow-hidden">
+          <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 rounded-xl p-4 sm:p-5 text-white shadow-2xl relative overflow-hidden">
             {/* Effet brillant */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
             
             <div className="relative z-10">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
+              <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-4">
+                <div className="flex-1 w-full">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-2xl">🚀</span>
-                    <h4 className="font-extrabold text-lg">Passez à l'illimité !</h4>
+                    <span className="text-xl sm:text-2xl">🚀</span>
+                    <h4 className="font-extrabold text-base sm:text-lg">Passez à l'illimité !</h4>
                   </div>
-                  <ul className="space-y-1 text-sm text-orange-50 mb-3">
+                  <ul className="space-y-1 text-xs sm:text-sm text-orange-50 mb-3">
                     <li className="flex items-center gap-2">
-                      <span className="text-white font-bold">✓</span>
+                      <span className="text-white font-bold flex-shrink-0">✓</span>
                       <span>Conversions <strong>illimitées</strong> à vie</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-white font-bold">✓</span>
+                      <span className="text-white font-bold flex-shrink-0">✓</span>
                       <span>Aucun abonnement mensuel</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-white font-bold">✓</span>
+                      <span className="text-white font-bold flex-shrink-0">✓</span>
                       <span>Accès prioritaire aux nouvelles fonctionnalités</span>
                     </li>
                   </ul>
                   <div className="flex items-center gap-2">
-                    <span className="text-orange-100 line-through text-sm">9,99€</span>
-                    <span className="text-3xl font-black">2,99€</span>
+                    <span className="text-orange-100 line-through text-xs sm:text-sm">9,99€</span>
+                    <span className="text-2xl sm:text-3xl font-black">2,99€</span>
                     <span className="bg-yellow-400 text-orange-900 text-xs font-bold px-2 py-1 rounded-full">-70%</span>
                   </div>
                   <p className="text-xs text-orange-100 mt-1">Paiement unique • Sans engagement</p>
                 </div>
                 <button
                   onClick={() => redirectToCheckout()}
-                  className="bg-white text-orange-600 px-6 py-3 rounded-xl font-extrabold hover:bg-orange-50 transition-all shadow-xl hover:shadow-2xl transform hover:scale-105 whitespace-nowrap flex items-center gap-2"
+                  className="w-full sm:w-auto bg-white text-orange-600 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-extrabold hover:bg-orange-50 transition-all shadow-xl hover:shadow-2xl transform hover:scale-105 whitespace-nowrap flex items-center justify-center gap-2 flex-shrink-0"
                 >
                   <span>Débloquer</span>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </button>

@@ -773,27 +773,27 @@ function App() {
     <>
       <Analytics />
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50">
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-7xl">
           {/* Bannière de bienvenue premium */}
           {showWelcomeBanner && (
-            <div className="mb-6 bg-gradient-to-r from-green-500 to-cyan-600 text-white rounded-2xl shadow-xl p-6 animate-fadeIn">
+            <div className="mb-4 sm:mb-6 bg-gradient-to-r from-green-500 to-cyan-600 text-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 animate-fadeIn">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">🎉 Bienvenue !</h3>
-                  <p className="text-green-100">Votre compte est maintenant actif.</p>
+                  <h3 className="text-base sm:text-xl font-bold">🎉 Bienvenue !</h3>
+                  <p className="text-sm sm:text-base text-green-100">Votre compte est maintenant actif.</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowWelcomeBanner(false)}
-                className="text-white hover:text-green-100 transition-colors"
+                className="text-white hover:text-green-100 transition-colors flex-shrink-0 ml-2"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -801,22 +801,22 @@ function App() {
           </div>
         )}
 
-        <header className="text-center mb-12">
-          <div className="flex items-center justify-center gap-4 mb-4">
+        <header className="text-center mb-6 sm:mb-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-3 sm:mb-4">
             <img 
               src="/logo.png" 
               alt="Logo MarkdownEnPDF - Convertisseur Markdown vers PDF"
-              className="w-20 h-20 object-contain"
+              className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
             />
-            <h1 className="text-5xl font-extrabold bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-700 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-700 bg-clip-text text-transparent leading-tight">
               Convertir Markdown en PDF
             </h1>
           </div>
-          <p className="text-slate-700 text-xl font-semibold mb-3">
+          <p className="text-slate-700 text-base sm:text-lg md:text-xl font-semibold mb-2 sm:mb-3 px-2">
             Le convertisseur Markdown vers PDF le plus simple et rapide 🚀
           </p>
-          <p className="text-slate-600 text-base max-w-3xl mx-auto">
-            Transformez vos fichiers <strong>.md</strong> en documents <strong>PDF professionnels</strong> en quelques secondes.<br />100% gratuit, sans inscription, avec support complet du formatage Markdown.
+          <p className="text-slate-600 text-sm sm:text-base max-w-3xl mx-auto px-3">
+            Transformez vos fichiers <strong>.md</strong> en documents <strong>PDF professionnels</strong> en quelques secondes.<br className="hidden sm:inline" /><span className="sm:hidden"> </span>100% gratuit, sans inscription, avec support complet du formatage Markdown.
           </p>
         </header>
 
@@ -846,13 +846,13 @@ function App() {
                   <SettingsIcon />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-slate-800">Réglages de mise en page</h2>
-                  <p className="text-sm text-slate-600">Personnalisez votre PDF selon vos besoins</p>
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-800">Réglages de mise en page</h2>
+                  <p className="text-xs sm:text-sm text-slate-600">Personnalisez votre PDF selon vos besoins</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="px-6 py-3 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center gap-2"
+                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-cyan-600 hover:bg-cyan-700 text-white text-sm sm:text-base font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center gap-2"
               >
                 <span>{showSettings ? 'Masquer' : 'Configurer'}</span>
                 <svg 
@@ -1523,17 +1523,17 @@ function App() {
             </div>
           </div>
 
-          <div className="px-8 pb-8">
+          <div className="px-4 sm:px-8 pb-6 sm:pb-8">
             <button
               onClick={handleConvert}
               disabled={!markdown.trim() || isConverting}
-              className="w-full bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-600 hover:from-cyan-600 hover:via-blue-700 hover:to-cyan-700 text-white font-bold py-5 px-8 rounded-xl transition-all transform hover:scale-[1.02] hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-xl flex items-center justify-center gap-3 text-lg"
+              className="w-full bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-600 hover:from-cyan-600 hover:via-blue-700 hover:to-cyan-700 text-white font-bold py-4 sm:py-5 px-4 sm:px-8 rounded-xl transition-all transform hover:scale-[1.02] hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-xl flex items-center justify-center gap-2 sm:gap-3 text-base sm:text-lg"
               aria-label="Télécharger le document en format PDF"
             >
-              <span role="img" aria-label="Icône téléchargement">
+              <span role="img" aria-label="Icône téléchargement" className="flex-shrink-0">
                 <DownloadIcon />
               </span>
-              <span>{isConverting ? 'Conversion en cours...' : 'Télécharger en PDF Gratuit 🎉'}</span>
+              <span className="text-sm sm:text-base md:text-lg">{isConverting ? 'Conversion...' : 'Télécharger en PDF Gratuit 🎉'}</span>
               {isConverting && (
                 <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-label="Chargement en cours">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

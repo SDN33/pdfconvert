@@ -109,7 +109,7 @@ export default function RegisterModal({ isOpen, onClose, onRegisterSuccess }: Re
         </button>
 
         <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent mb-2">
             Créer un compte gratuit
           </h2>
           <p className="text-gray-600">
@@ -124,7 +124,7 @@ export default function RegisterModal({ isOpen, onClose, onRegisterSuccess }: Re
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-green-800 mb-2">Compte créé avec succès !</h3>
+            <h3 className="text-lg sm:text-xl font-bold text-green-800 mb-2">Compte créé avec succès !</h3>
             <p className="text-green-600">Vous êtes maintenant connecté</p>
           </div>
         ) : (

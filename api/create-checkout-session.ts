@@ -4,7 +4,7 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-10-29.clover',
 });
 
 // Validation des inputs
@@ -51,7 +51,7 @@ export default async function handler(req: any, res: any) {
     if (!validationResult.success) {
       return res.status(400).json({ 
         error: 'Données invalides',
-        details: validationResult.error.errors[0].message 
+        details: validationResult.error.issues[0].message 
       });
     }
 

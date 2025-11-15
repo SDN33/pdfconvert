@@ -4,7 +4,7 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-10-29.clover',
 });
 
 // Validation du session_id
@@ -40,11 +40,11 @@ export default async function handler(req: any, res: any) {
     }
 
     // Validation des inputs
-    const validationResult = sessionSchema.safeParse(req.query);
+    const validationResult = sessionSchema.safeParse(req.body);
     if (!validationResult.success) {
       return res.status(400).json({ 
-        error: 'Session ID invalide',
-        details: validationResult.error.errors[0].message 
+        error: 'Données invalides',
+        details: validationResult.error.issues[0].message 
       });
     }
 

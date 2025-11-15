@@ -57,6 +57,26 @@ export default function RegisterModal({ isOpen, onClose, onRegisterSuccess }: Re
       
       // Stocker le session token
       localStorage.setItem('session_token', result.user.sessionToken);
+
+      // Envoyer l'email de bienvenue (asynchrone, ne bloque pas l'UI)
+      try {
+        await fetch('https://oohbiwmyoylbwgalmcgn.supabase.co/functions/v1/send-welcome-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            email: result.user.email,
+            isPremium: false,
+            userName: result.user.email.split('@')[0],
+          }),
+        });
+        console.log('✅ Welcome email sent');
+      } catch (emailError) {
+        console.error('⚠️ Failed to send welcome email:', emailError);
+        // Ne pas bloquer la création de compte si l'email échoue
+      }
       
       // Appeler le callback de succès
       setTimeout(() => {

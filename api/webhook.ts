@@ -107,8 +107,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       console.log('Premium user processed successfully:', session.customer_email);
 
-      // TODO: Envoyer un email de bienvenue avec lien vers /setup-password
-      // await sendWelcomeEmail(session.customer_email, session.id);
+      // Envoyer l'email de bienvenue Premium
+      try {
+        const emailResponse = await fetch('https://oohbiwmyoylbwgalmcgn.supabase.co/functions/v1/send-welcome-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            email: session.customer_email,
+            isPremium: true,
+            userName: session.customer_email.split('@')[0],
+          }),
+        });
+
+        if (emailResponse.ok) {
+          console.log('✅ Welcome Premium email sent to:', session.customer_email);
+        } else {
+          console.error('⚠️ Failed to send welcome email, status:', emailResponse.status);
+        }
+      } catch (emailError) {
+        console.error('⚠️ Error sending welcome email:', emailError);
+        // Ne pas bloquer le webhook si l'email échoue
+      }
 
     } catch (dbError) {
       const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown error';

@@ -1,19 +1,31 @@
 # 🚀 MarkdownEnPDF.com - Convertisseur Markdown vers PDF
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/SDN33/pdfconvert)
+[![Security Score](https://img.shields.io/badge/Security-8.5%2F10-green)](./SECURITY_SUMMARY.md)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)]()
 
-> Convertisseur professionnel de Markdown en PDF avec système de paiement intégré et gestion premium
+> Convertisseur professionnel de Markdown en PDF avec système de paiement sécurisé et gestion premium
+
+## 🔒 Sécurité Renforcée (Nov 2025)
+
+✅ **Tokens cryptographiques** (uuid v4)  
+✅ **Validation stricte** (Zod + whitelist)  
+✅ **Rate limiting** (Upstash Redis)  
+✅ **Score 8.5/10** (détails dans `SECURITY_SUMMARY.md`)
+
+---
 
 ## 📋 Vue d'ensemble
 
 Application web moderne permettant de convertir des fichiers Markdown en PDF avec :
 - ✅ **Conversion gratuite** : 2 conversions par jour (limité par IP)
 - ✅ **Version Premium** : Accès illimité à vie pour 2,99€
-- ✅ **Système de login** : Connexion avec email pour les utilisateurs premium
+- ✅ **Système de login** : Connexion avec email/Google OAuth
 - ✅ **Paiement Stripe** : Intégration complète avec webhook automatisé
 - ✅ **Backend Supabase** : Base de données PostgreSQL avec RLS
 - ✅ **10 thèmes** : Personnalisation complète du rendu PDF
 - ✅ **5 styles de bordures** : Simple, double, arrondi, décoratif, gradient
+- 🔒 **Sécurité** : Rate limiting, validation Zod, tokens sécurisés
 
 ## 🎯 Fonctionnalités
 
@@ -29,7 +41,7 @@ Application web moderne permettant de convertir des fichiers Markdown en PDF ave
 - ♾️ Conversions illimitées
 - 🎨 Tous les thèmes et styles débloqués
 - ⚡ Pas de limitation IP
-- 🔐 Connexion avec email
+- 🔐 Connexion avec email + Google OAuth
 - 💾 Historique sauvegardé
 
 ## 🏗️ Architecture
@@ -37,17 +49,20 @@ Application web moderne permettant de convertir des fichiers Markdown en PDF ave
 ```
 Frontend (React + TypeScript + Vite)
     ↓
+Sécurité (Zod + Upstash Rate Limit)
+    ↓
 Backend (Supabase PostgreSQL)
     ├── conversion_logs (tracking IP)
-    └── premium_users (utilisateurs payants)
+    ├── premium_users (utilisateurs payants)
+    └── user_sessions (tokens uuid v4)
     ↓
-Paiement (Stripe)
+Paiement (Stripe Live)
     ├── Checkout (2,99€ one-time)
     └── Webhook (création auto utilisateur)
     ↓
 Déploiement (Vercel)
     ├── SPA routing
-    └── Serverless functions (/api/webhook)
+    └── Serverless functions (/api/*)
 ```
 
 ## 🚀 Installation
@@ -61,28 +76,42 @@ npm install
 
 ### 2. Configuration Supabase
 1. Créer un projet sur https://supabase.com
-2. Exécuter `supabase_schema.sql` dans SQL Editor
+2. Exécuter les migrations dans `supabase/migrations/`
 3. Récupérer les clés API (Settings → API)
 
 ### 3. Configuration Stripe
 1. Créer un compte sur https://stripe.com
 2. Créer un produit "Conversion Illimitée" à 2,99€
 3. Récupérer les clés API (Developers → API keys)
+4. Configurer webhook endpoint : `https://votre-domaine.com/api/webhook`
 
-### 4. Variables d'environnement
-Créer `.env` à la racine :
+### 4. Configuration Upstash (Rate Limiting - Optionnel)
+📖 **Voir guide complet** : `UPSTASH_SETUP_GUIDE.md`
+1. Créer compte gratuit sur https://upstash.com
+2. Créer base Redis
+3. Copier URL et Token
+
+### 5. Variables d'environnement
+Copier `.env.example` vers `.env` et remplir :
 ```env
+# Supabase
 VITE_SUPABASE_URL=https://xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Stripe
 VITE_STRIPE_PUBLIC_KEY=pk_live_...
 VITE_STRIPE_PRODUCT_ID=prod_...
 VITE_STRIPE_PRICE_ID=price_...
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Upstash (optionnel pour rate limiting)
+UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
+UPSTASH_REDIS_REST_TOKEN=xxx
 ```
 
-### 5. Lancer en local
+### 6. Lancer en local
 ```bash
 npm run dev
 ```

@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 
 const SALT_ROUNDS = 10;
 
@@ -110,9 +111,9 @@ export async function handleOAuthCallback(): Promise<{ success: boolean; user?: 
   }
 }
 
-// Générer un token de session unique
+// Générer un token de session unique et sécurisé
 function generateSessionToken(): string {
-  return `${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+  return `${Date.now()}_${uuidv4()}`;
 }
 
 // Créer un compte premium avec mot de passe

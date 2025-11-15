@@ -1812,7 +1812,7 @@ function App() {
             Contact
           </a>
           •
-          <span className="mx-2">Propulsé par <a href="https://stilliov.com">Still-inov Agency</a></span>
+          <span className="mx-2">Propulsé par <a href="https://stillinov.com">Still-inov Agency</a></span>
         </footer>
       </div>
       

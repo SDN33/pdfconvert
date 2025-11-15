@@ -147,17 +147,17 @@ function generatePremiumWelcomeEmail(email: string, userName?: string): string {
           <!-- Content -->
           <tr>
             <td style="padding: 40px 30px;">
-              <p style="margin: 0 0 20px; font-size: 16px; color: #334155; line-height: 1.6;">
+              <p style="margin: 0 0 20px; font-size: 16px; color: #1e293b; line-height: 1.6;">
                 Bonjour${userName ? ' ' + userName : ''} 👋
               </p>
               
-              <p style="margin: 0 0 20px; font-size: 16px; color: #334155; line-height: 1.6;">
+              <p style="margin: 0 0 20px; font-size: 16px; color: #1e293b; line-height: 1.6;">
                 Merci d'avoir rejoint <strong>MarkdownEnPDF Premium</strong> ! Votre compte est maintenant activé et vous avez accès à toutes les fonctionnalités premium.
               </p>
               
               <div style="background: #f0fdfa; border-left: 4px solid #10b981; padding: 20px; margin: 30px 0; border-radius: 8px;">
                 <h3 style="margin: 0 0 15px; color: #047857; font-size: 18px;">✨ Vos avantages Premium :</h3>
-                <ul style="margin: 0; padding-left: 20px; color: #065f46;">
+                <ul style="margin: 0; padding-left: 20px; color: #065f46; font-weight: 500;">
                   <li style="margin-bottom: 10px;"><strong>Conversions illimitées</strong> à vie 🚀</li>
                   <li style="margin-bottom: 10px;"><strong>Pas d'abonnement mensuel</strong> - Paiement unique ✅</li>
                   <li style="margin-bottom: 10px;"><strong>Accès prioritaire</strong> aux nouvelles fonctionnalités 🎯</li>
@@ -171,7 +171,7 @@ function generatePremiumWelcomeEmail(email: string, userName?: string): string {
                 </a>
               </div>
               
-              <p style="margin: 20px 0; font-size: 16px; color: #334155; line-height: 1.6;">
+              <p style="margin: 20px 0; font-size: 16px; color: #1e293b; line-height: 1.6;">
                 <strong>Besoin d'aide ?</strong><br>
                 Notre équipe est là pour vous : <a href="mailto:contact@stillinov.com" style="color: #0891b2; text-decoration: none;">contact@stillinov.com</a>
               </p>
@@ -231,20 +231,31 @@ function generateFreeWelcomeEmail(email: string, userName?: string): string {
           <!-- Content -->
           <tr>
             <td style="padding: 40px 30px;">
-              <p style="margin: 0 0 20px; font-size: 16px; color: #334155; line-height: 1.6;">
+              <p style="margin: 0 0 20px; font-size: 16px; color: #1e293b; line-height: 1.6;">
                 Bonjour${userName ? ' ' + userName : ''} 👋
               </p>
               
-              <p style="margin: 0 0 20px; font-size: 16px; color: #334155; line-height: 1.6;">
+              <p style="margin: 0 0 20px; font-size: 16px; color: #1e293b; line-height: 1.6;">
                 Bienvenue sur <strong>MarkdownEnPDF</strong> ! Vous pouvez maintenant convertir vos fichiers Markdown en PDF professionnels en quelques clics.
               </p>
               
+              <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 30px 0; border-radius: 8px;">
+                <h3 style="margin: 0 0 15px; color: #1e40af; font-size: 18px;">🎁 Compte gratuit créé !</h3>
+                <p style="margin: 0 0 12px; color: #1e40af; font-size: 15px; line-height: 1.6; font-weight: 500;">
+                  Vous disposez de <strong>2 conversions gratuites par jour</strong>. Profitez-en dès maintenant !
+                </p>
+              </div>
+              
               <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 30px 0; border-radius: 8px;">
                 <h3 style="margin: 0 0 15px; color: #92400e; font-size: 18px;">🚀 Passez à Premium pour 2,99€</h3>
-                <p style="margin: 0; color: #78350f; font-size: 14px; line-height: 1.6;">
-                  Débloquez les conversions illimitées à vie avec un paiement unique de 2,99€ (sans abonnement). 
-                  Plus de limites, plus de fonctionnalités !
+                <p style="margin: 0 0 12px; color: #78350f; font-size: 15px; line-height: 1.6; font-weight: 500;">
+                  Débloquez les <strong>conversions illimitées à vie</strong> avec un paiement unique de 2,99€ (sans abonnement).
                 </p>
+                <ul style="margin: 10px 0 0; padding-left: 20px; color: #78350f; font-weight: 500;">
+                  <li style="margin-bottom: 8px;">✅ Conversions illimitées à vie</li>
+                  <li style="margin-bottom: 8px;">✅ Aucun abonnement mensuel</li>
+                  <li style="margin-bottom: 8px;">✅ Paiement unique de 2,99€</li>
+                </ul>
               </div>
               
               <div style="text-align: center; margin: 30px 0;">
@@ -253,7 +264,7 @@ function generateFreeWelcomeEmail(email: string, userName?: string): string {
                 </a>
               </div>
               
-              <p style="margin: 20px 0; font-size: 16px; color: #334155; line-height: 1.6;">
+              <p style="margin: 20px 0; font-size: 16px; color: #1e293b; line-height: 1.6;">
                 <strong>Besoin d'aide ?</strong><br>
                 Contactez-nous : <a href="mailto:contact@stillinov.com" style="color: #6366f1; text-decoration: none;">contact@stillinov.com</a>
               </p>

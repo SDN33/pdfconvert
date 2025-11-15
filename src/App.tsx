@@ -1,15 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import jsPDF from 'jspdf';
 import { checkConversionAllowed, logConversion, getClientIP } from './lib/supabase';
 import { verifySession, logout as authLogout } from './lib/auth';
 import { redirectToCheckout } from './lib/stripe';
 import { shouldShowCookieBanner, acceptCookies } from './lib/cookies';
 import CookieBanner from './components/CookieBanner';
-import UpgradeModal from './components/UpgradeModal';
-import LoginModal from './components/LoginModal';
-import RegisterModal from './components/RegisterModal';
 import PremiumBanner from './components/PremiumBanner';
 import { Analytics } from "@vercel/analytics/react"
+
+// Lazy loading des modals pour optimiser le bundle
+const UpgradeModal = lazy(() => import('./components/UpgradeModal'));
+const LoginModal = lazy(() => import('./components/LoginModal'));
+const RegisterModal = lazy(() => import('./components/RegisterModal'));
 
 interface PageSettings {
   fontSize: number;
@@ -1819,27 +1821,54 @@ function App() {
       
       {/* Login Modal */}
       {showLoginModal && (
-        <LoginModal 
-          onClose={() => setShowLoginModal(false)}
-          onLoginSuccess={handleLoginSuccess}
-        />
+        <Suspense fallback={
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-8 shadow-2xl">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
+              <p className="text-gray-600 mt-4 text-center">Chargement...</p>
+            </div>
+          </div>
+        }>
+          <LoginModal 
+            onClose={() => setShowLoginModal(false)}
+            onLoginSuccess={handleLoginSuccess}
+          />
+        </Suspense>
       )}
       
       {/* Register Modal */}
       {showRegisterModal && (
-        <RegisterModal 
-          isOpen={showRegisterModal}
-          onClose={() => setShowRegisterModal(false)}
-          onRegisterSuccess={handleRegisterSuccess}
-        />
+        <Suspense fallback={
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-8 shadow-2xl">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
+              <p className="text-gray-600 mt-4 text-center">Chargement...</p>
+            </div>
+          </div>
+        }>
+          <RegisterModal 
+            isOpen={showRegisterModal}
+            onClose={() => setShowRegisterModal(false)}
+            onRegisterSuccess={handleRegisterSuccess}
+          />
+        </Suspense>
       )}
       
       {/* Upgrade Modal */}
-      <UpgradeModal 
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        onUpgrade={handleUpgrade}
-      />
+      <Suspense fallback={
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 shadow-2xl">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
+            <p className="text-gray-600 mt-4 text-center">Chargement...</p>
+          </div>
+        </div>
+      }>
+        <UpgradeModal 
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          onUpgrade={handleUpgrade}
+        />
+      </Suspense>
     </div>
     </>
   );

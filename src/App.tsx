@@ -1747,35 +1747,6 @@ function App() {
           </div>
         </section>
 
-        {/* Bannière fonctionnalités avancées */}
-        <section className="mt-12 mb-8 bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500 rounded-3xl shadow-2xl p-10 text-white">
-          <div className="grid md:grid-cols-3 gap-8 items-center">
-            <article className="text-center">
-              <div className="text-6xl mb-4">⚡</div>
-              <h3 className="text-2xl font-bold mb-3">Rapide & Léger</h3>
-              <p className="text-orange-50">
-                Conversion instantanée sans installation de logiciel. Fonctionne sur tous les navigateurs modernes : Chrome, Firefox, Safari, Edge.
-              </p>
-            </article>
-
-            <article className="text-center border-x-2 border-orange-400/30 px-6">
-              <div className="text-6xl mb-4">🎯</div>
-              <h3 className="text-2xl font-bold mb-3">8 Options Premium</h3>
-              <p className="text-orange-50">
-                Couleurs de thème, styles de titres, bordures décoratives, en-têtes/pieds de page personnalisés. Créez des PDFs uniques !
-              </p>
-            </article>
-
-            <article className="text-center">
-              <div className="text-6xl mb-4">🌍</div>
-              <h3 className="text-2xl font-bold mb-3">100% Français</h3>
-              <p className="text-orange-50">
-                Interface entièrement en français. Support client francophone. Optimisé pour le public français, belge, suisse et canadien.
-              </p>
-            </article>
-          </div>
-        </section>
-
         {/* Call to Action final */}
         <section className="mt-12 mb-8 text-center bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-600 rounded-3xl shadow-2xl p-12 text-white">
           <h2 className="text-3xl font-bold mb-4">

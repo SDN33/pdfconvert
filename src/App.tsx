@@ -187,6 +187,23 @@ function App() {
     setPremiumEmail('');
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.md')) {
+      alert('Veuillez sélectionner un fichier .md');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      setMarkdown(content);
+    };
+    reader.readAsText(file);
+  };
+
   const handleConvert = async () => {
     if (!markdown.trim()) return;
 
@@ -1134,12 +1151,26 @@ function App() {
 
           <div className="grid lg:grid-cols-2 gap-6 p-8">
             <div>
-              <label className="block text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
-                <span role="img" aria-label="Icône étoile">
-                  <SparkleIcon />
-                </span>
-                <span>Éditeur Markdown</span>
-              </label>
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <span role="img" aria-label="Icône étoile">
+                    <SparkleIcon />
+                  </span>
+                  <span>Éditeur Markdown</span>
+                </label>
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept=".md"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <div className="flex items-center gap-2 px-4 py-2 bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded-lg transition-all text-sm font-semibold">
+                    <FileIcon />
+                    <span>Importer .md</span>
+                  </div>
+                </label>
+              </div>
               <textarea
                 value={markdown}
                 onChange={(e) => setMarkdown(e.target.value)}

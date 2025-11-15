@@ -86,8 +86,38 @@ export default async function handler(req: any, res: any) {
       url: session.url 
     });
   } catch (error: any) {
-    console.error('Error creating checkout session:', error);
-    // Ne pas exposer les détails d'erreur en production
-    res.status(500).json({ error: 'Erreur lors de la création de la session' });
+    console.error('❌ Error creating checkout session:', error);
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    // Fournir plus de détails pour le débogage
+    let errorMessage = 'Erreur lors de la création de la session';
+    let statusCode = 500;
+    
+    if (error.type === 'StripeAuthenticationError') {
+      console.error('❌ Stripe authentication failed - check STRIPE_SECRET_KEY');
+      errorMessage = 'Configuration Stripe invalide';
+      statusCode = 500;
+    } else if (error.type === 'StripeInvalidRequestError') {
+      console.error('❌ Invalid Stripe request:', error.message);
+      errorMessage = 'Requête invalide vers Stripe';
+      statusCode = 400;
+    } else if (error.message?.includes('No such price')) {
+      console.error('❌ Invalid price ID:', req.body.priceId);
+      errorMessage = 'Prix Stripe invalide';
+      statusCode = 400;
+    } else if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('❌ STRIPE_SECRET_KEY is not set');
+      errorMessage = 'Configuration serveur manquante';
+      statusCode = 500;
+    }
+    
+    // En développement, renvoyer plus de détails
+    const isDev = process.env.NODE_ENV !== 'production';
+    res.status(statusCode).json({ 
+      error: errorMessage,
+      ...(isDev && { details: error.message, type: error.type })
+    });
   }
 }

@@ -45,9 +45,24 @@ export async function redirectToCheckout(email?: string) {
     console.log('📡 Réponse API:', response.status, response.statusText);
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Erreur HTTP:', response.status, errorText);
-      throw new Error(`Erreur serveur (${response.status}): ${errorText}`);
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { error: await response.text() };
+      }
+      console.error('❌ Erreur HTTP:', response.status, errorData);
+      
+      // Message d'erreur plus détaillé
+      let errorMessage = `Erreur serveur (${response.status})`;
+      if (errorData.error) {
+        errorMessage += `: ${errorData.error}`;
+      }
+      if (errorData.details) {
+        errorMessage += ` - ${errorData.details}`;
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();

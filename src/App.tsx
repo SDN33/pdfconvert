@@ -1616,6 +1616,60 @@ function App() {
           </div>
         </section>
 
+        {/* Section FAQ - Déplacée ici */}
+        <section className="mt-12 mb-8" aria-labelledby="faq-heading">
+          <h2 id="faq-heading" className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+            Questions Fréquentes (FAQ)
+          </h2>
+          
+          <div className="space-y-4 max-w-4xl mx-auto">
+            <details className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-cyan-100">
+              <summary className="font-bold text-lg text-slate-800 cursor-pointer hover:text-cyan-600 transition-colors">
+                Comment convertir un fichier Markdown en PDF gratuitement ?
+              </summary>
+              <p className="mt-4 text-slate-600">
+                C'est très simple ! Copiez votre contenu Markdown dans l'éditeur ci-dessus, personnalisez les réglages de mise en page si vous le souhaitez (marges, taille de police, etc.), puis cliquez sur le bouton "Télécharger en PDF". La conversion est instantanée et 100% gratuite.
+              </p>
+            </details>
+            
+            <details className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-cyan-100">
+              <summary className="font-bold text-lg text-slate-800 cursor-pointer hover:text-cyan-600 transition-colors">
+                Est-ce que mes documents sont sécurisés ?
+              </summary>
+              <p className="mt-4 text-slate-600">
+                Absolument ! Toute la conversion se fait localement dans votre navigateur web. Vos fichiers Markdown et PDF ne sont jamais envoyés sur nos serveurs. Vos données restent 100% privées et sécurisées sur votre appareil.
+              </p>
+            </details>
+            
+            <details className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-cyan-100">
+              <summary className="font-bold text-lg text-slate-800 cursor-pointer hover:text-cyan-600 transition-colors">
+                Quels éléments Markdown sont supportés ?
+              </summary>
+              <p className="mt-4 text-slate-600">
+                Nous supportons tous les éléments Markdown standards : titres (H1 à H6), paragraphes, <strong>gras</strong>, <em>italique</em>, listes à puces et numérotées multi-niveaux, code inline et blocs de code, liens hypertextes, citations (blockquotes), séparateurs horizontaux, et bien plus encore !
+              </p>
+            </details>
+            
+            <details className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-cyan-100">
+              <summary className="font-bold text-lg text-slate-800 cursor-pointer hover:text-cyan-600 transition-colors">
+                Y a-t-il des limites d'utilisation ?
+              </summary>
+              <p className="mt-4 text-slate-600">
+                Non, aucune limite ! Vous pouvez convertir autant de documents Markdown en PDF que vous le souhaitez, sans restriction. Pas de compte à créer, pas d'abonnement, pas de limite quotidienne. C'est totalement gratuit et illimité.
+              </p>
+            </details>
+            
+            <details className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-cyan-100">
+              <summary className="font-bold text-lg text-slate-800 cursor-pointer hover:text-cyan-600 transition-colors">
+                Puis-je personnaliser le rendu PDF ?
+              </summary>
+              <p className="mt-4 text-slate-600">
+                Oui ! Cliquez sur "Réglages de mise en page" pour personnaliser : taille du texte, interligne, marges (haut/bas/gauche/droite), taille des titres H1 et H2, numérotation des pages, et même ajouter un filigrane optionnel. Créez des PDFs exactement comme vous les voulez !
+              </p>
+            </details>
+          </div>
+        </section>
+
         {/* Section Fonctionnalités détaillées */}
         <section className="mt-12 mb-8 bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-cyan-100" aria-labelledby="details-heading">
           <h2 id="details-heading" className="text-3xl font-bold text-center mb-8 text-slate-800">
@@ -1690,60 +1744,6 @@ function App() {
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Section FAQ */}
-        <section className="mt-12 mb-8" aria-labelledby="faq-heading">
-          <h2 id="faq-heading" className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
-            Questions Fréquentes (FAQ)
-          </h2>
-          
-          <div className="space-y-4 max-w-4xl mx-auto">
-            <details className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-cyan-100">
-              <summary className="font-bold text-lg text-slate-800 cursor-pointer hover:text-cyan-600 transition-colors">
-                Comment convertir un fichier Markdown en PDF gratuitement ?
-              </summary>
-              <p className="mt-4 text-slate-600">
-                C'est très simple ! Copiez votre contenu Markdown dans l'éditeur ci-dessus, personnalisez les réglages de mise en page si vous le souhaitez (marges, taille de police, etc.), puis cliquez sur le bouton "Télécharger en PDF". La conversion est instantanée et 100% gratuite.
-              </p>
-            </details>
-            
-            <details className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-cyan-100">
-              <summary className="font-bold text-lg text-slate-800 cursor-pointer hover:text-cyan-600 transition-colors">
-                Est-ce que mes documents sont sécurisés ?
-              </summary>
-              <p className="mt-4 text-slate-600">
-                Absolument ! Toute la conversion se fait localement dans votre navigateur web. Vos fichiers Markdown et PDF ne sont jamais envoyés sur nos serveurs. Vos données restent 100% privées et sécurisées sur votre appareil.
-              </p>
-            </details>
-            
-            <details className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-cyan-100">
-              <summary className="font-bold text-lg text-slate-800 cursor-pointer hover:text-cyan-600 transition-colors">
-                Quels éléments Markdown sont supportés ?
-              </summary>
-              <p className="mt-4 text-slate-600">
-                Nous supportons tous les éléments Markdown standards : titres (H1 à H6), paragraphes, <strong>gras</strong>, <em>italique</em>, listes à puces et numérotées multi-niveaux, code inline et blocs de code, liens hypertextes, citations (blockquotes), séparateurs horizontaux, et bien plus encore !
-              </p>
-            </details>
-            
-            <details className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-cyan-100">
-              <summary className="font-bold text-lg text-slate-800 cursor-pointer hover:text-cyan-600 transition-colors">
-                Y a-t-il des limites d'utilisation ?
-              </summary>
-              <p className="mt-4 text-slate-600">
-                Non, aucune limite ! Vous pouvez convertir autant de documents Markdown en PDF que vous le souhaitez, sans restriction. Pas de compte à créer, pas d'abonnement, pas de limite quotidienne. C'est totalement gratuit et illimité.
-              </p>
-            </details>
-            
-            <details className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-cyan-100">
-              <summary className="font-bold text-lg text-slate-800 cursor-pointer hover:text-cyan-600 transition-colors">
-                Puis-je personnaliser le rendu PDF ?
-              </summary>
-              <p className="mt-4 text-slate-600">
-                Oui ! Cliquez sur "Réglages de mise en page" pour personnaliser : taille du texte, interligne, marges (haut/bas/gauche/droite), taille des titres H1 et H2, numérotation des pages, et même ajouter un filigrane optionnel. Créez des PDFs exactement comme vous les voulez !
-              </p>
-            </details>
           </div>
         </section>
 

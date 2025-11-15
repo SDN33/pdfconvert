@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 
 // Validation des inputs
 const checkoutSchema = z.object({
-  email: z.string().email('Email invalide').max(255),
+  email: z.string().email('Email invalide').max(255).optional(),
   priceId: z.string().startsWith('price_', 'Price ID invalide').max(100),
 });
 
@@ -73,7 +73,7 @@ export default async function handler(req: any, res: any) {
       mode: 'payment',
       success_url: `${req.headers.origin}/setup-password?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.origin}`,
-      customer_email: email,
+      customer_email: email || undefined, // Stripe collectera l'email si non fourni
       locale: 'fr',
       metadata: {
         email: email || 'no-email-provided',

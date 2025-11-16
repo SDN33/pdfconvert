@@ -841,7 +841,7 @@ function App() {
           <div className="p-6 bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-600">
             <ins className="adsbygoogle"
               style={{ display: 'block' }}
-              data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+              data-ad-client="ca-pub-2463769733352328"
               data-ad-slot="XXXXXXXXXX"
               data-ad-format="horizontal"
               data-full-width-responsive="true"></ins>
